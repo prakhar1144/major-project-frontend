@@ -1,11 +1,17 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import SignIn from './Pages/Authentication/SignIn';
+import SignUp from './Pages/Authentication/SignUp';
 import Homepage from './Pages/Homepage'
 
 function App() {
   return (
-    <div>
-      {/* Create separate jsx files for all the pages in the website (Homepage, Map Page, Transaction Page) and put in the Pages Folder */}
-      <Homepage/>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/user/signin" element={<SignIn />} />
+        <Route path="/user/signup" element={<SignUp />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
