@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import SignIn from './Pages/Authentication/SignIn';
 import SignUp from './Pages/Authentication/SignUp';
 import Homepage from './Pages/Homepage'
+import NearbyStation from './Pages/NearbyStation';
 
 function App() {
   return (
