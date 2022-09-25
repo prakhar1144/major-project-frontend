@@ -11,6 +11,7 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/user/signin" element={<SignIn />} />
         <Route path="/user/signup" element={<SignUp />} />
+        <Route path="/nearby" element={<NearbyStation/>} />
       </Routes>
     </BrowserRouter>
   );
