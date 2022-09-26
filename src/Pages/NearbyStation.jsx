@@ -1,3 +1,4 @@
+import { Container } from "@mui/material";
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useEffect,useState } from 'react';
@@ -10,7 +11,6 @@ const columns = [
     { field: 'Rate', headerName: 'Rate', width: 250 },
     { field: 'Free_Connector_Count', headerName: 'Free_Connector_Count', width: 150 },
 ];
-
 
 const NearbyStation = () => {
 
@@ -54,6 +54,10 @@ const NearbyStation = () => {
     console.log(rows);
     return (
         <>
+            <Container maxWidth="sm">
+                <iframe title="nearby_charging_stations" src="https://www.google.com/maps/d/u/0/embed?mid=1y4_hgDCpK0rKgTD9VFtdoqHV3wol_F4&ehbc=2E312F" width="640" height="480"></iframe>
+            </Container>
+
             {/* <iframe title="nearby_charging_stations" src="https://www.google.com/maps/d/u/0/embed?mid=1y4_hgDCpK0rKgTD9VFtdoqHV3wol_F4&ehbc=2E312F" width="640" height="480"></iframe> */}
             <div style={{ height: 500, width: '100%' }}>
                 <DataGrid rows={rows} columns={columns} />
