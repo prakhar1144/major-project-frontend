@@ -11,18 +11,33 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
 const theme = createTheme();
 
 export default function SignIn() {
+  const navigate = useNavigate();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const userData = {
       email: data.get('email'),
       password: data.get('password'),
-    });
+    };
+    signInWithEmailAndPassword(auth, userData.email, userData.password)
+      .then((userCreds) => {
+        localStorage.setItem('token', userCreds.user.toJSON().stsTokenManager.accessToken);
+        console.log('logged in');
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+      })
   };
 
   return (
@@ -43,7 +58,7 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign In
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -61,10 +76,6 @@ export default function SignIn() {
               label="Password"
               type="password"
               id="password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label={<Typography variant="subtitle2">Remember me</Typography>}
             />
             <Button
               type="submit"
