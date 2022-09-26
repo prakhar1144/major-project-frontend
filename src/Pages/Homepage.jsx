@@ -7,44 +7,44 @@ import Divider from "./components/Navbar/Divider";
 
 const features = [
     {
-        name: 'Businesses',
+        name: 'Chargers Nearby',
         image: 'business.svg',
-        caption: 'Premium EV charging for customers and employees.',
+        caption: 'Search for nearby charging outlets.',
         buttonText: 'Explore Your Options',
-        buttonLink: '#'
+        buttonLink: '/nearby'
     },
     {
-        name: 'Fleets',
+        name: 'Charge',
         image: 'fleet.svg',
-        caption: 'Intelligent, flexible charging solutions to meet all your fleet needs.',
-        buttonText: 'Tell Me More',
+        caption: 'Charge the car and make a payment.',
+        buttonText: 'Charge my vehicle',
         buttonLink: '#'
     },
     {
-        name: 'Drivers',
+        name: 'Provider',
         image: 'drivers.svg',
-        caption: 'We make it easy to charge here, there and everywhere.',
-        buttonText: 'How It Works',
+        caption: 'Register as a provider and reap the benefits.',
+        buttonText: 'Register',
         buttonLink: '#'
     }
 ];
 const overviewData = [
     {
-        title: 'Hundreds of thousands of places to charge',
-        subtitle: 'One account to access them in North America and Europe.',
-        caption: 'We’re leading the charge. Actually, we started it. You’d think after creating the world’s largest and most open EV charging network we’d be satisfied, but you’d be wrong. The way we see it, there’s still much more we can do—together. Join us in getting all people and goods moving on electricity.',
+        title: 'Hundreds of unplanned places to charge',
+        subtitle: 'One solution to utlize them efficiently',
+        caption: "We're striving to create a blockchain-based solution to revolutionise the EV Charging market by maximising the use of existing charging stations as opposed to installing centralised charging stations on a large scale.",
         image: 'hp_plug.png'
     },
     {
-        title: 'We do it all',
-        subtitle: '',
-        caption: 'We’re the only network with an integrated portfolio of hardware, cloud services and support delivering the smoothest possible experience for all businesses and drivers. When everything works together, EV charging is better for everyone.',
+        title: 'Beneficial for all',
+        subtitle: 'Benefits accrue to consumers, providers, and everyone else',
+        caption: 'Consumers will no longer need to precalculate distance before travelling, suppliers will be able to utilise their outlets during off-peak hours, and a key barrier to the widespread adoption of electric vehicles will be removed.',
         image: 'hp_bolt.png'
     },
     {
-        title: '133 million charges delivered (and counting)',
-        subtitle: '',
-        caption: 'Networked charging is, and always has been, our sole focus. After more than a decade and millions of charges delivered, we’re still pioneering new ways to make electric mobility the easy choice.',
+        title: 'Community Driven',
+        subtitle: 'Blockchain technology ensures decentralisation, security, and transparency.',
+        caption: 'We are eliminating the issue connected with the centralised model in which power trade will not be transparent and equitable, resulting in the collapse of the entire system.',
         image: 'hp_arrow.png'
     }
 ];
@@ -113,12 +113,9 @@ const Banner = (
                 },
             }}
         >
-            <Box p={1}>
-                <Typography component="h1" sx={{ fontWeight: '300', fontSize: { sm: '2.5rem', xs: '1.5rem' } }} color="inherit" gutterBottom>
-                    Comprehensive Charging for <br />Any Fleet
-                </Typography>
-                <Typography variant="h6" color="inherit" component={Link} to="/features" sx={{ textDecoration: 'none' }}>
-                    Meet our new solution <ChevronRight />
+            <Box py={8}>
+                <Typography component="h1" sx={{ fontWeight: '300', fontSize: { sm: '2.5rem', xs: '1.5rem' } }} color="inherit">
+                    Major Project - I
                 </Typography>
             </Box>
         </Box>
@@ -162,10 +159,13 @@ const HomePage = (props) => {
                 </Grid>
             </Grid>
             <Container maxWidth="lg">
-                <Grid container spacing={4} px={1} py={5}>
+                <Grid container spacing={4} px={1} my={18}>
                     {featuresComponent}
                 </Grid>
-                {overViewComponent}
+                <Box mt={32} mb={10}>
+                    {overViewComponent}
+                </Box>
+                
             </Container>
         </>
     );
