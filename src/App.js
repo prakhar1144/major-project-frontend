@@ -1,4 +1,3 @@
-import { Container } from '@mui/material';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import SignIn from './Pages/Authentication/SignIn';
 import SignUp from './Pages/Authentication/SignUp';
