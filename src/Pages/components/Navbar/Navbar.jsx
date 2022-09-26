@@ -1,33 +1,12 @@
-import { AppBar, Box, Button, CssBaseline, Divider, Drawer, GlobalStyles, IconButton, List, ListItem, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, CssBaseline, Divider, Drawer, GlobalStyles, IconButton, Toolbar } from "@mui/material";
 import React from "react";
 import { NavLink } from "react-router-dom";
+import Link from '@mui/material/Link';
+
 import MenuIcon from '@mui/icons-material/Menu';
 import { Container } from "@mui/system";
-import { HelpOutline, HomeOutlined, LocationCityOutlined, SettingsOutlined, SupportOutlined } from "@mui/icons-material";
 
 const drawerWidth = 240;
-const navItems = [
-  {
-    name: 'Home',
-    icon: <HomeOutlined  fontSize="small" />,
-    path: '/'
-  },
-  {
-    name: 'Features',
-    icon: <SettingsOutlined fontSize="small" />,
-    path: '/features'
-  },
-  {
-    name: 'Nearby Points',
-    icon: <LocationCityOutlined fontSize="small" />,
-    path: '/nearby-points'
-  },
-  {
-    name: 'Help',
-    icon: <HelpOutline fontSize="small" />,
-    path: '/help'
-  }
-];
 
 const Navbar = (props) => {
   const { window } = props;
@@ -37,23 +16,9 @@ const Navbar = (props) => {
     setMobileOpen(!mobileOpen);
   };
 
-  const navItemComponent = () => navItems.map((item, index) => (
-    <ListItem key={index} disablePadding>
-      <ListItemButton component={NavLink} to={item.path} color="primary">
-        {item.icon}<ListItemText primary={item.name} />
-      </ListItemButton>
-    </ListItem>
-  ));
-
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        Downtown Charge
-      </Typography>
-      <Divider />
-      <List>
-        {navItemComponent()}
-      </List>
+        <Link href="/" variant="h6" sx={{ my: 2 }}>LOGO</Link>
     </Box>
   );
 
@@ -65,7 +30,7 @@ const Navbar = (props) => {
       <CssBaseline />
       <AppBar
         position="static"
-        color="default"
+        color="transparent"
         elevation={0}
         sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
       >
@@ -81,18 +46,7 @@ const Navbar = (props) => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              Downtown Charge
-            </Typography>
-            <Box component="nav" sx={{ display: { xs: 'none', sm: 'block' } }}>
-              {navItems.map((item, index) => {
-                return (
-                  <Button key={index} component={NavLink} to={item.path}>
-                    {item.icon}{item.name}
-                  </Button>
-                )
-              })}
-            </Box>
+            <Link href="/" variant="h6" color="inherit" noWrap underline="none" sx={{ flexGrow: 1}}>LOGO</Link>
             <Button component={NavLink} to="user/signin" variant="outlined" size="small">
               Sign in
             </Button>

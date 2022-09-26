@@ -11,7 +11,7 @@ const features = [
         image: 'business.svg',
         caption: 'Search for nearby charging outlets.',
         buttonText: 'Explore Your Options',
-        buttonLink: '/nearby-points'
+        buttonLink: '/nearby'
     },
     {
         name: 'Charge',
@@ -159,10 +159,13 @@ const HomePage = (props) => {
                 </Grid>
             </Grid>
             <Container maxWidth="lg">
-                <Grid container spacing={4} px={1} py={5}>
+                <Grid container spacing={4} px={1} my={18}>
                     {featuresComponent}
                 </Grid>
-                {overViewComponent}
+                <Box mt={32} mb={10}>
+                    {overViewComponent}
+                </Box>
+                
             </Container>
         </>
     );
