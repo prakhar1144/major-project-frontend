@@ -1,15 +1,19 @@
 import { AppBar, Box, Button, CssBaseline, Divider, Drawer, GlobalStyles, IconButton, List, ListItem, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Container } from "@mui/system";
 import { HelpOutline, HomeOutlined, LocationCityOutlined, SettingsOutlined, SupportOutlined } from "@mui/icons-material";
+import { auth } from "../../../firebase";
+import { useState } from "react";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 
 const drawerWidth = 240;
 const navItems = [
   {
     name: 'Home',
-    icon: <HomeOutlined  fontSize="small" />,
+    icon: <HomeOutlined fontSize="small" />,
     path: '/'
   },
   {
@@ -30,6 +34,9 @@ const navItems = [
 ];
 
 const Navbar = (props) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -58,6 +65,25 @@ const Navbar = (props) => {
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
+
+  const handleLogout = () => {
+    auth.signOut()
+      .then(() => {
+        localStorage.removeItem('token');
+        navigate('/user/signin');
+      })
+  }
+  //console.log(user);
+  useEffect(() => {
+    onAuthStateChanged(auth, (userdata) => {
+      if (userdata) {
+        setUser(userdata.toJSON());
+      } else {
+        console.log("not logged in");
+        navigate('/user/signin')
+      }
+    });
+  }, []);
 
   return (
     <React.Fragment>
@@ -93,9 +119,15 @@ const Navbar = (props) => {
                 )
               })}
             </Box>
-            <Button component={NavLink} to="user/signin" variant="outlined" size="small">
-              Sign in
-            </Button>
+            {user ? (
+              <Button onClick={() => handleLogout()} variant="outlined" size="small">
+                Sign Out
+              </Button>
+            ) : (
+              <Button component={NavLink} to="user/signin" variant="outlined" size="small">
+                Sign in
+              </Button>
+            )}
           </Toolbar>
         </Container>
       </AppBar>
