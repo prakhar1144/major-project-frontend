@@ -7,12 +7,13 @@ import { getDatabase } from 'firebase/database';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAkV4uESU3y5zlM6YuA4UZ8QgqWDtMkHw4",
-  authDomain: "ev-charging-solution.firebaseapp.com",
-  projectId: "ev-charging-solution",
-  storageBucket: "ev-charging-solution.appspot.com",
-  messagingSenderId: "354763656296",
-  appId: "1:354763656296:web:0ef45c1d92c85f1505bfdd"
+  apiKey: "AIzaSyAuXG5Vtn5Tv_7kJk3FuimpoWo6G8Q4wls",
+  authDomain: "ev-charging-solution2.firebaseapp.com",
+  databaseURL: "https://ev-charging-solution2-default-rtdb.firebaseio.com",
+  projectId: "ev-charging-solution2",
+  storageBucket: "ev-charging-solution2.appspot.com",
+  messagingSenderId: "1095153079681",
+  appId: "1:1095153079681:web:ff5b390a0d8d4451f40480"
 };
 
 // Initialize Firebase
