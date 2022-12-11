@@ -1,22 +1,14 @@
-import { AppBar, Box, Button, CssBaseline, Divider, Drawer, GlobalStyles, IconButton, Link, Toolbar } from "@mui/material";
+import { AppBar, Box, Button, CssBaseline, Drawer, GlobalStyles, IconButton, Link, Toolbar } from "@mui/material";
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Container } from "@mui/system";
-import { auth } from "../../../firebase";
-import { useState } from "react";
-import { useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
 import { SmartContractContext } from "../../../Context/SmartContract";
 import { shortenAddress } from "../../../Utils/addressShortener";
 
 const drawerWidth = 240;
 
 const Navbar = (props) => {
-  const { connectWallet, currentAccount, isLoading } = React.useContext(SmartContractContext);
-
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { connectWallet, currentAccount } = React.useContext(SmartContractContext);
 
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -33,24 +25,7 @@ const Navbar = (props) => {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
-  const handleLogout = () => {
-    auth.signOut()
-      .then(() => {
-        localStorage.removeItem('token');
-        navigate('/');
-      })
-  }
   //console.log(user);
-  useEffect(() => {
-    onAuthStateChanged(auth, (userdata) => {
-      if (userdata) {
-        setUser(userdata.toJSON());
-      } else {
-        console.log("not logged in");
-      }
-    });
-  }, []);
-
   return (
     <React.Fragment>
       <GlobalStyles styles={{ ul: { margin: 0, padding: 0, listStyle: 'none' } }} />

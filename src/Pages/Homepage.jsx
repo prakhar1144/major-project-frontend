@@ -1,5 +1,4 @@
-import { ChevronRight } from "@mui/icons-material";
-import { Button, Card, CardActions, CardContent, CardMedia, Container, Grid, Paper, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Container, Grid, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -56,13 +55,15 @@ const overViewComponent = overviewData.map((item, index) => (
                 <img src={item.image} style={{ width: '100%', height: 'auto' }} alt={item.title} loading="lazy" />
             </Grid>
             <Grid item sx={12} sm={7} order={{ sm: index % 2 === 1 ? 1 : 2 }}>
-                <Typography sx={{ color: 'orangered', fontWeight: '200', margin: {
-                    sm:'60px 0px 28px 0px',
-                    xs:'10px 0px 20px 0px'
-                }, fontSize: {
-                    sm:'2.25rem',
-                    xs:'1.5rem'
-                }, lineHeight: '1.1' }}>
+                <Typography sx={{
+                    color: 'orangered', fontWeight: '200', margin: {
+                        sm: '60px 0px 28px 0px',
+                        xs: '10px 0px 20px 0px'
+                    }, fontSize: {
+                        sm: '2.25rem',
+                        xs: '1.5rem'
+                    }, lineHeight: '1.1'
+                }}>
                     {item.title}
                 </Typography>
                 <Typography color="text.secondary" mb={2}>
@@ -165,7 +166,7 @@ const HomePage = (props) => {
                 <Box mt={32} mb={10}>
                     {overViewComponent}
                 </Box>
-                
+
             </Container>
         </>
     );

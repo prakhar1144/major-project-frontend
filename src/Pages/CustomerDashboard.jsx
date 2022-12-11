@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { SmartContractContext } from "../Context/SmartContract";
 import { shortenAddress } from "../Utils/addressShortener";
-import { ethers } from 'ethers';
 import QRScanner from './QRScanner';
 
 const style = {
@@ -52,7 +51,7 @@ const AddProviderForm = ({ open, handleClose, addProviderData, handleChange, sub
     )
 };
 
-const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, totalPrice }) => {
+const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, totalPrice, scannerData, handleScan }) => {
     return (
         <Modal
             open={open}
@@ -60,34 +59,39 @@ const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, total
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <form onSubmit={submit}>
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Charge my Vehicle
-                    </Typography>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Provider's Name" variant="outlined" value={chargeData.name} size="small" fullWidth />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Provider's Wallet Address" variant="outlined" value={shortenAddress(chargeData.providerWalletAddress)} size="small" fullWidth />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Rate" variant="outlined" value={chargeData.rate} size="small" fullWidth type="number" />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Provider's Location" variant="outlined" value={chargeData.location} size="small" fullWidth />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Connector Type" variant="outlined" value={chargeData.connectorType} size="small" fullWidth type="number" />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Required Percent (%)" variant="outlined" value={chargeData.requiredPercent} size="small" fullWidth name="requiredPercent" onChange={handleChange} type="number" />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <Button fullWidth type="submit" variant="contained">Pay {chargeData.totalPrice}</Button>
-                    </Box>
-                </Box>
-            </form>
+            <Box sx={style}>
+
+                {scannerData === null ? (
+                    <QRScanner handleScan={handleScan} />
+                ) : (
+                    <form onSubmit={submit}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            Charge my Vehicle
+                        </Typography>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Provider's Name" variant="outlined" value={chargeData.name} size="small" fullWidth />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Provider's Wallet Address" variant="outlined" value={shortenAddress(chargeData.providerWalletAddress)} size="small" fullWidth />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Rate" variant="outlined" value={chargeData.rate} size="small" fullWidth type="number" />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Provider's Location" variant="outlined" value={chargeData.location} size="small" fullWidth />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Connector Type" variant="outlined" value={chargeData.connectorType} size="small" fullWidth type="number" />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <TextField required id="outlined-basic" label="Required Percent (%)" variant="outlined" value={chargeData.requiredPercent} size="small" fullWidth name="requiredPercent" onChange={handleChange} type="number" />
+                        </Box>
+                        <Box sx={{ p: 1 }}>
+                            <Button fullWidth type="submit" variant="contained">Pay {chargeData.totalPrice} MATIC</Button>
+                        </Box>
+                    </form>
+                )}
+            </Box>
         </Modal >
     );
 };
@@ -95,21 +99,23 @@ const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, total
 export default function CustomerDashboard() {
     const [scannerData, setScannerData] = useState(null);
 
-    const { currentAccount, addProvider, payAmount } = React.useContext(SmartContractContext);
+    const { currentAccount, addProvider, payAmount, getConsumerData } = React.useContext(SmartContractContext);
+
     const initialProviderData = {
         rate: '',
         location: '',
         connectorType: ''
     };
-    const [chargeData, setChargeData] = useState({
-        rate: '9',
-        location: 'Hamirpur Bus Stand',
-        providerWalletAddress: '0x336Fa634e585077B5c6866FFE2d61C0fF6c62D69',
-        connectorType: '2',
-        name: 'Moris Chriss',
+    const initialChargeData = {
+        rate: '',
+        location: '',
+        providerWalletAddress: '',
+        connectorType: '',
+        name: '',
         requiredPercent: '0',
         totalPrice: '0'
-    });
+    };
+    const [chargeData, setChargeData] = useState(initialChargeData);
 
     const [addProviderData, setAddProviderData] = useState(initialProviderData);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -117,9 +123,12 @@ export default function CustomerDashboard() {
 
     const handleAddCloseModal = () => {
         setIsAddModalOpen(false);
+        setAddProviderData(initialProviderData);
     };
     const handleChargeCloseModal = () => {
         setIsChargeModalOpen(false);
+        setScannerData(null);
+        setChargeData(initialChargeData);
     };
     const handleChangeAddProvider = (e) => {
         setAddProviderData({
@@ -127,11 +136,12 @@ export default function CustomerDashboard() {
             [e.target.name]: e.target.value
         });
     };
-    const handleChangeChargeData = (e) => {
+    const handleChangePercent = (e) => {
+        let temp = e.target.value >= 0 && e.target.value <= 100 ? e.target.value : chargeData.requiredPercent;
         setChargeData({
             ...chargeData,
-            requiredPercent: e.target.value,
-            totalPrice: ((parseFloat(chargeData.rate) * parseFloat(e.target.value)) / 300.0).toFixed(10)
+            requiredPercent: temp === '' ? 0 : temp,
+            totalPrice: ((parseFloat(chargeData.rate) * parseFloat(temp === '' ? 0 : temp)) / 300.0).toFixed(10)
         });
     };
     const submitAddProvider = (e) => {
@@ -157,14 +167,28 @@ export default function CustomerDashboard() {
         });
     };
     const handleScan = (data) => {
-        console.log(data);
+        //console.log(data);
         if (data) {
             setScannerData(data.text);
-            setIsChargeModalOpen(true);
+            let providerInfo = data.text.split(',');
+            setChargeData({
+                ...chargeData,
+                rate: providerInfo[0],
+                name: providerInfo[1],
+                location: `${providerInfo[2]},${providerInfo[3]}`,
+                providerWalletAddress: providerInfo[4],
+                connectorType: providerInfo[5] ? providerInfo[5] : '1'
+            });
         }
     };
 
-    console.log(scannerData);
+    useEffect(() => {
+        const fun = async () => {
+            const data = await getConsumerData();
+            console.log(data);
+        };
+        if (currentAccount) fun();
+    }, [currentAccount]);
     return (
         <Container sx={{ paddingTop: 2 }}>
             <Grid container>
@@ -174,9 +198,11 @@ export default function CustomerDashboard() {
                         <Button onClick={() => setIsChargeModalOpen(true)} variant="contained" color="success">Charge</Button>
                     </Box>
                     <AddProviderForm open={isAddModalOpen} addProviderData={addProviderData} handleChange={handleChangeAddProvider} handleClose={handleAddCloseModal} submit={submitAddProvider} currentAccount={currentAccount} />
-                    <ChargeForm open={isChargeModalOpen} handleClose={handleChargeCloseModal} chargeData={chargeData} handleChange={handleChangeChargeData} submit={submitChargeData} currentAccount={currentAccount} />
+                    <ChargeForm open={isChargeModalOpen} handleClose={handleChargeCloseModal} chargeData={chargeData} handleChange={handleChangePercent} submit={submitChargeData} setChargeData={setChargeData} handleScan={handleScan} scannerData={scannerData} />
                 </Grid>
-                {scannerData === null && <QRScanner setData={setScannerData} handleScan={handleScan} />}
+                <Grid item xs={12}>
+
+                </Grid>
             </Grid>
         </Container>
 

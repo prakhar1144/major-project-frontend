@@ -31,7 +31,7 @@ const SmartContractProvider = ({ children }) => {
     */
     const selectDashboardAndRedirect = (account) => {
 
-        console.log(account, providers.indexOf(account));
+        //console.log(account, providers.indexOf(account));
         if (providers.indexOf(account) === -1) {
             navigate('/customer-dashboard');
         } else {
@@ -163,36 +163,34 @@ const SmartContractProvider = ({ children }) => {
 
     const getConsumerData = async () => {
         try {
-                if(!currentAccount)
-                {
-                    alert("Connect Your Wallet")
-                }
-                else {
-                    const MetamaskProvider = getMetamaskProvider();
-                    const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
-                    const consumerData = await contract.consumers(currentAccount);
-                    return consumerData;
-                } 
-            }catch(error) {
-                console.log(error);
+            if (!currentAccount) {
+                alert("Connect Your Wallet")
             }
+            else {
+                const MetamaskProvider = getMetamaskProvider();
+                const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
+                const consumerData = await contract.consumers(currentAccount);
+                return consumerData;
+            }
+        } catch (error) {
+            alert(error);
+        }
     }
 
     const getProviderData = async () => {
         try {
-                if(!currentAccount)
-                {
-                    alert("Connect Your Wallet")
-                }
-                else {
-                    const MetamaskProvider = getMetamaskProvider();
-                    const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
-                    const providerData = await contract.providers(currentAccount);
-                    return providerData;
-                } 
-            }catch(error) {
-                console.log(error);
+            if (!currentAccount) {
+                alert("Connect Your Wallet")
             }
+            else {
+                const MetamaskProvider = getMetamaskProvider();
+                const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
+                const providerData = await contract.providers(currentAccount);
+                return providerData;
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
     // const pickWinner = async () => {
     //     try {
@@ -256,7 +254,7 @@ const SmartContractProvider = ({ children }) => {
     //     // setIsReadLoading(false);
     // }    
     return (
-        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, currentAccount, isLoading, providers }}>
+        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, getConsumerData, currentAccount, isLoading, providers }}>
             {children}
         </SmartContractContext.Provider>
     )

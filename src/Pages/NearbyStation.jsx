@@ -1,4 +1,3 @@
-import { Grid } from '@mui/material';
 import { Container } from '@mui/material';
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
@@ -7,9 +6,9 @@ import axios from "axios";
 
 const columns = [
     { field: 'Name', headerName: 'Name', flex: 2, headerAlign: 'center' },
-    { field: 'Connector_Type', headerName: 'Connector Type', flex: 2, headerAlign: 'center', align: 'center'},
-    { field: 'Status', headerName: 'Status', flex: 1, headerAlign: 'center', align: 'center'},
-    { field: 'Rate', headerName: 'Rate', description: 'Rs. per minute', flex: 1, headerAlign: 'center', align: 'center'},
+    { field: 'Connector_Type', headerName: 'Connector Type', flex: 2, headerAlign: 'center', align: 'center' },
+    { field: 'Status', headerName: 'Status', flex: 1, headerAlign: 'center', align: 'center' },
+    { field: 'Rate', headerName: 'Rate', description: 'Rs. per minute', flex: 1, headerAlign: 'center', align: 'center' },
     { field: 'Free_Connector_Count', headerName: 'Free Connector Count', flex: 1, headerAlign: 'center', align: 'center' },
 ];
 
@@ -56,10 +55,10 @@ const NearbyStation = () => {
                 <DataGrid
                     pageSize={pageSize}
                     onPageSizeChange={(newPage) => setPageSize(newPage)}
-                    pagination 
+                    pagination
                     autoHeight rows={rows} columns={columns} />
             </Container>
-            
+
         </>
     );
 }

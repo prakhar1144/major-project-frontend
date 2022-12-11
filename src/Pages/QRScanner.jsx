@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React from 'react'
 import QrReader from 'react-qr-scanner'
 const previewStyle = {
-    height: 320,
-    width: 320,
+    height: 350,
+    width: 350,
 }
 const QRScanner = ({ handleScan }) => {
     const handleError = (err) => {
