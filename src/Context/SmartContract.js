@@ -18,6 +18,7 @@ const getMetamaskProvider = () => {
 
 const SmartContractProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState('');
+    const [isProviderConfirmed, setIsProviderConfirmed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [providers, setProviders] = useState(['0x336fa634e585077b5c6866ffe2d61c0ff6c62d69']);
 
@@ -110,7 +111,7 @@ const SmartContractProvider = ({ children }) => {
 
     // use metamask provider for connect wallet and register new provider
     const addProvider = async (_rate, _location, _availableChargingPorts) => {
-        console.log(ContractABI);
+        //console.log(ContractABI);
         try {
             if (!currentAccount) {
                 alert("Connect Your Wallet")
@@ -122,6 +123,7 @@ const SmartContractProvider = ({ children }) => {
                 const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
                 providerListener(contract);
                 await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
+                setIsProviderConfirmed(true);
             }
         } catch (error) {
             console.log(error);
@@ -254,7 +256,7 @@ const SmartContractProvider = ({ children }) => {
     //     // setIsReadLoading(false);
     // }    
     return (
-        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, getConsumerData, currentAccount, isLoading, providers }}>
+        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, getConsumerData, currentAccount, isLoading, providers, isProviderConfirmed }}>
             {children}
         </SmartContractContext.Provider>
     )

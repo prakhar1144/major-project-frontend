@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { SmartContractContext } from "../Context/SmartContract";
 import { shortenAddress } from "../Utils/addressShortener";
+import QRGenerator from "./QRGenerator";
 import QRScanner from './QRScanner';
 import { BigNumber } from "ethers";
 
@@ -18,7 +19,7 @@ const style = {
     boxShadow: 24,
     p: 2,
 };
-const AddProviderForm = ({ open, handleClose, addProviderData, handleChange, submit, currentAccount }) => {
+const AddProviderForm = ({ open, handleClose, addProviderData, handleChange, submit, currentAccount, handleDownload, isProviderConfirmed }) => {
     return (
         <Modal
             open={open}
@@ -28,24 +29,38 @@ const AddProviderForm = ({ open, handleClose, addProviderData, handleChange, sub
         >
             <form onSubmit={submit}>
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Fill out this form to become a provider
-                    </Typography>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Wallet Address" variant="outlined" value={shortenAddress(currentAccount)} size="small" fullWidth />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Rate" variant="outlined" value={addProviderData.rate} size="small" fullWidth type="number" name="rate" onChange={handleChange} />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField required id="outlined-basic" label="Location" variant="outlined" value={addProviderData.location} size="small" fullWidth name="location" onChange={handleChange} />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <TextField type="number" required id="outlined-basic" label="Connector Type" variant="outlined" value={addProviderData.connectorType} size="small" fullWidth name="connectorType" onChange={handleChange} />
-                    </Box>
-                    <Box sx={{ p: 1 }}>
-                        <Button fullWidth type="submit" variant="outlined">Save</Button>
-                    </Box>
+                    {
+                        !isProviderConfirmed ? (
+                            <>
+                                <Typography id="modal-modal-title" variant="h6" component="h2">
+                                    Fill out this form to become a provider
+                                </Typography>
+                                <Box sx={{ p: 1 }}>
+                                    <TextField required id="outlined-basic" label="Wallet Address" variant="outlined" value={shortenAddress(currentAccount)} size="small" fullWidth />
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <TextField required id="outlined-basic" label="Name" variant="outlined" value={addProviderData.name} size="small" fullWidth type="text" name="name" onChange={handleChange} />
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <TextField required id="outlined-basic" label="Rate" variant="outlined" value={addProviderData.rate} size="small" fullWidth type="number" name="rate" onChange={handleChange} />
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <TextField required id="outlined-basic" label="Location" variant="outlined" value={addProviderData.location} size="small" fullWidth name="location" onChange={handleChange} />
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <TextField type="number" required id="outlined-basic" label="Connector Type" variant="outlined" value={addProviderData.connectorType} size="small" fullWidth name="connectorType" onChange={handleChange} />
+                                </Box>
+                                <Box sx={{ p: 1 }}>
+                                    <Button fullWidth type="submit" variant="outlined">Submit</Button>
+                                </Box>
+                            </>
+                        ) : (
+                            <>
+                                <QRGenerator value={`${addProviderData.rate},${addProviderData.name},${addProviderData.location},${currentAccount},${addProviderData.connectorType}`} />
+                                <Button fullWidth variant="contained" color="success" onClick={() => handleDownload()}>Download QR</Button>
+                            </>
+                        )
+                    }
                 </Box>
             </form>
         </Modal>
@@ -100,9 +115,10 @@ const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, total
 export default function CustomerDashboard() {
     const [scannerData, setScannerData] = useState(null);
 
-    const { currentAccount, addProvider, payAmount, getConsumerData } = React.useContext(SmartContractContext);
+    const { currentAccount, addProvider, payAmount, getConsumerData, isProviderConfirmed } = React.useContext(SmartContractContext);
 
     const initialProviderData = {
+        name: '',
         rate: '',
         location: '',
         connectorType: ''
@@ -149,8 +165,6 @@ export default function CustomerDashboard() {
         e.preventDefault();
         //console.log(addProviderData);
         addProvider(addProviderData.rate, addProviderData.location, addProviderData.connectorType);
-        handleAddCloseModal();
-        setAddProviderData(initialProviderData);
     };
     const submitChargeData = (e) => {
         e.preventDefault();
@@ -174,7 +188,24 @@ export default function CustomerDashboard() {
             });
         }
     };
-
+    const onClickDownload = () => {
+        const svg = document.getElementById("QRCode");
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d", { alpha: false });
+        const img = new Image();
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const pngFile = canvas.toDataURL("image/jpeg");
+            const downloadLink = document.createElement("a");
+            downloadLink.download = `QR-${Date.now()}`;
+            downloadLink.href = `${pngFile}`;
+            downloadLink.click();
+        };
+        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+    };
     useEffect(() => {
         const fun = async () => {
             const data = await getConsumerData();
@@ -183,6 +214,7 @@ export default function CustomerDashboard() {
         };
         if (currentAccount) fun();
     }, [currentAccount]);
+
     return (
         <Container sx={{ paddingTop: 2, paddingBottom: 2 }}>
             <Grid container>
@@ -191,11 +223,10 @@ export default function CustomerDashboard() {
                         <Button onClick={() => setIsAddModalOpen(true)} variant="contained">Become a Provider</Button>
                         <Button onClick={() => setIsChargeModalOpen(true)} variant="contained" color="success">Charge your vehicle</Button>
                     </Box>
-                    <AddProviderForm open={isAddModalOpen} addProviderData={addProviderData} handleChange={handleChangeAddProvider} handleClose={handleAddCloseModal} submit={submitAddProvider} currentAccount={currentAccount} />
+                    <AddProviderForm open={isAddModalOpen} addProviderData={addProviderData} handleChange={handleChangeAddProvider} handleClose={handleAddCloseModal} submit={submitAddProvider} currentAccount={currentAccount} handleDownload={onClickDownload} isProviderConfirmed={isProviderConfirmed} />
                     <ChargeForm open={isChargeModalOpen} handleClose={handleChargeCloseModal} chargeData={chargeData} handleChange={handleChangePercent} submit={submitChargeData} setChargeData={setChargeData} handleScan={handleScan} scannerData={scannerData} />
                 </Grid>
                 <Grid item xs={12}>
-
                 </Grid>
             </Grid>
         </Container>

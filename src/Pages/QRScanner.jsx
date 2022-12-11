@@ -14,7 +14,7 @@ const QRScanner = ({ handleScan }) => {
             style={previewStyle}
             onError={handleError}
             onScan={handleScan}
-        />
+            constraints={{ video: { facingMode: 'environment' } }} />
     )
 }
 export default QRScanner;
