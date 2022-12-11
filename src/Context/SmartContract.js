@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { ContractABI, ContractAddress } from "../Utils/Constant";
 import { useNavigate } from 'react-router-dom';
 
@@ -144,16 +144,15 @@ const SmartContractProvider = ({ children }) => {
                 transactionListener(contract);
 
                 // await perform transaction
+                const _value = parseInt(_totalPrice*10000000000).toString();
                 const transactionParameters = {
                     from: currentAccount, // sender wallet address
                     to: _toAddress,  // receiver address
-                    data: '0x',
-                    value: ethers.utils.parseEther(_totalPrice),
-                    // gasLimit: ethers.utils.hexlify(10000),
-                    // gasPrice: ethers.utils.hexlify(parseInt(await MetamaskProvider.getGasPrice())),
+                    value: BigNumber.from(_value).mul(BigNumber.from("100000000")),
                 }
+                // console.log(transactionParameters.value);
                 await signer.sendTransaction(transactionParameters)
-                await contract.recordTransaction(currentAccount, _toAddress, _energyAmount, _totalPrice, _timestamp);
+                await contract.recordTransaction(currentAccount, _toAddress, _energyAmount, _value, _timestamp);
             }
         } catch (error) {
             console.log(error);
@@ -170,6 +169,7 @@ const SmartContractProvider = ({ children }) => {
                 const MetamaskProvider = getMetamaskProvider();
                 const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
                 const consumerData = await contract.consumers(currentAccount);
+                console.log(currentAccount);
                 return consumerData;
             }
         } catch (error) {

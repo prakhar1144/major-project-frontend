@@ -17,14 +17,14 @@ const features = [
         image: 'fleet.svg',
         caption: 'Charge the car and make a payment.',
         buttonText: 'Charge my vehicle',
-        buttonLink: '#'
+        buttonLink: '/customer-dashboard'
     },
     {
         name: 'Provider',
         image: 'drivers.svg',
         caption: 'Register as a provider and reap the benefits.',
         buttonText: 'Register',
-        buttonLink: '#'
+        buttonLink: '/provider-dashboard'
     }
 ];
 const overviewData = [

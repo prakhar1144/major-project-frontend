@@ -5,6 +5,7 @@ import { useState } from "react";
 import { SmartContractContext } from "../Context/SmartContract";
 import { shortenAddress } from "../Utils/addressShortener";
 import QRScanner from './QRScanner';
+import { BigNumber } from "ethers";
 
 const style = {
     position: 'absolute',
@@ -156,15 +157,7 @@ export default function CustomerDashboard() {
         //console.log(chargeData);
         payAmount(chargeData.totalPrice, chargeData.requiredPercent, chargeData.providerWalletAddress, Date.now());
         handleChargeCloseModal();
-        setChargeData({
-            rate: '9',
-            location: 'Hamirpur Bus Stand',
-            providerWalletAddress: '0x336Fa634e585077B5c6866FFE2d61C0fF6c62D69',
-            connectorType: '2',
-            name: 'Moris Chriss',
-            requiredPercent: '0',
-            totalPrice: '0'
-        });
+        setChargeData(initialChargeData);
     };
     const handleScan = (data) => {
         //console.log(data);
@@ -185,17 +178,18 @@ export default function CustomerDashboard() {
     useEffect(() => {
         const fun = async () => {
             const data = await getConsumerData();
-            console.log(data);
+            console.log(data.addr);
+            console.log(BigNumber.from(data.consumed).toString());
         };
         if (currentAccount) fun();
     }, [currentAccount]);
     return (
-        <Container sx={{ paddingTop: 2 }}>
+        <Container sx={{ paddingTop: 2, paddingBottom: 2 }}>
             <Grid container>
                 <Grid item xs={12}>
-                    <Box sx={{ p: 1 }} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Button onClick={() => setIsAddModalOpen(true)} variant="contained">Add Provider</Button>
-                        <Button onClick={() => setIsChargeModalOpen(true)} variant="contained" color="success">Charge</Button>
+                    <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between' }}>
+                        <Button onClick={() => setIsAddModalOpen(true)} variant="contained">Become a Provider</Button>
+                        <Button onClick={() => setIsChargeModalOpen(true)} variant="contained" color="success">Charge your vehicle</Button>
                     </Box>
                     <AddProviderForm open={isAddModalOpen} addProviderData={addProviderData} handleChange={handleChangeAddProvider} handleClose={handleAddCloseModal} submit={submitAddProvider} currentAccount={currentAccount} />
                     <ChargeForm open={isChargeModalOpen} handleClose={handleChargeCloseModal} chargeData={chargeData} handleChange={handleChangePercent} submit={submitChargeData} setChargeData={setChargeData} handleScan={handleScan} scannerData={scannerData} />
