@@ -1,6 +1,7 @@
 import { createContext, useState } from "react";
 import { ethers } from 'ethers';
-import { ContractABI, ContractAddress } from "../Utils/constant";
+import { ContractABI, ContractAddress } from "../Utils/Constant";
+import { useNavigate } from 'react-router-dom';
 
 export const SmartContractContext = createContext();
 
@@ -15,10 +16,12 @@ const getMetamaskProvider = () => {
     return provider;
 }
 
-const SmartContractProvider = ({children}) => {
+const SmartContractProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    
+    const [providers, setProviders] = useState(['0x336fa634e585077b5c6866ffe2d61c0ff6c62d69']);
+
+    const navigate = useNavigate();
     // const LotteryContract = getContract();
     // On each refresh/render, check if user had connected his wallet to this site anytime in past.
     /*
@@ -26,50 +29,61 @@ const SmartContractProvider = ({children}) => {
         The returned address, if any, is the address of the most recently used account that the caller(website) is permitted to access.
         Callers are identified by their URL origin, which means that all sites with the same origin share the same permissions.
     */
+    const selectDashboardAndRedirect = (account) => {
+
+        console.log(account, providers.indexOf(account));
+        if (providers.indexOf(account) === -1) {
+            navigate('/customer-dashboard');
+        } else {
+            navigate('/provider-dashboard');
+        }
+    };
     const checkIfConnectedInPast = async () => {
-        try 
-        {
+        try {
             if (typeof window.ethereum === 'undefined') {
                 console.log("No Wallet Installed") // no need to alert
             }
-            else if(!window.ethereum.isMetaMask){
+            else if (!window.ethereum.isMetaMask) {
                 console.log("Metamask not installed") // no need to alert
             }
             else {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if(accounts.length)
-                {
+                if (accounts.length) {
                     setIsLoading(true);
                     setCurrentAccount(accounts[0]);
                     // disable connect button, connected
                     setIsLoading(false);
+
+                    //get providers list function  and then
+                    //providers list pass as argument to below function as 2nd argument
+
+                    selectDashboardAndRedirect(accounts[0]);
                     return accounts[0];
                 }
             }
-        } catch(error) {
+        } catch (error) {
             console.log(error);
         }
         return '';
     }
 
     const connectWallet = async () => {
-        try 
-        {
-            if(typeof window.ethereum === 'undefined')
-            {
+        try {
+            if (typeof window.ethereum === 'undefined') {
                 alert("Please Install MetaMask")
             }
-            else if (!window.ethereum.isMetaMask)
-            {
+            else if (!window.ethereum.isMetaMask) {
                 alert("Currently we have support only for MetaMask");
             }
-            else
-            {
+            else {
                 setIsLoading(true);
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); // metamask prompt opens and awaits approval
                 setCurrentAccount(accounts[0]);
                 // disable connect button, connected
                 setIsLoading(false);
+                //get providers list function  and then
+
+                selectDashboardAndRedirect(accounts[0]);
             }
         } catch (error) {
             console.log(error);
@@ -81,7 +95,7 @@ const SmartContractProvider = ({children}) => {
             // setIsReadLoading(true);
             // getReadOnlyData(currentAccount);
             setIsLoading(false);
-            console.log("provider successfully added");
+            alert("Provider successfully added.");
         })
     }
 
@@ -96,57 +110,90 @@ const SmartContractProvider = ({children}) => {
 
     // use metamask provider for connect wallet and register new provider
     const addProvider = async (_rate, _location, _availableChargingPorts) => {
+        console.log(ContractABI);
+        try {
+            if (!currentAccount) {
+                alert("Connect Your Wallet")
+            }
+            else {
+                setIsLoading(true);
+                const MetamaskProvider = getMetamaskProvider();
+                const signer = MetamaskProvider.getSigner();
+                const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
+                providerListener(contract);
+                await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
+            }
+        } catch (error) {
+            console.log(error);
+            alert(JSON.stringify(error));
+            setIsLoading(false);
+        }
+    }
+
+    const payAmount = async (_totalPrice, _energyAmount, _toAddress, _timestamp) => {
+        try {
+            // use metamask provider for connect wallet and payment option
+            if (!currentAccount) {
+                alert("Connect Your Wallet");
+            }
+            else {
+                setIsLoading(true);
+                const MetamaskProvider = getMetamaskProvider();
+                const signer = MetamaskProvider.getSigner();
+                const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
+                transactionListener(contract);
+
+                // await perform transaction
+                const transactionParameters = {
+                    from: currentAccount, // sender wallet address
+                    to: _toAddress,  // receiver address
+                    data: '0x',
+                    value: ethers.utils.parseEther(_totalPrice),
+                    // gasLimit: ethers.utils.hexlify(10000),
+                    // gasPrice: ethers.utils.hexlify(parseInt(await MetamaskProvider.getGasPrice())),
+                }
+                await signer.sendTransaction(transactionParameters)
+                await contract.recordTransaction(currentAccount, _toAddress, _energyAmount, _totalPrice, _timestamp);
+            }
+        } catch (error) {
+            console.log(error);
+            setIsLoading(false);
+        }
+    }
+
+    const getConsumerData = async () => {
         try {
                 if(!currentAccount)
                 {
                     alert("Connect Your Wallet")
                 }
                 else {
-                    setIsLoading(true);
                     const MetamaskProvider = getMetamaskProvider();
-                    const signer = MetamaskProvider.getSigner();
-                    const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
-                    providerListener(contract);
-                    await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
+                    const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
+                    const consumerData = await contract.consumers(currentAccount);
+                    return consumerData;
                 } 
             }catch(error) {
                 console.log(error);
-                setIsLoading(false);
             }
-        }
-
-    const payAmount = async (_totalPrice, _energyAmount, _toAddress, _timestamp) => {
-    try {
-    // use metamask provider for connect wallet and payment option
-        if(!currentAccount)
-        {
-            alert("Connect Your Wallet");
-        }
-        else {
-            setIsLoading(true);
-            const MetamaskProvider = getMetamaskProvider();
-            const signer = MetamaskProvider.getSigner();
-            const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
-            transactionListener(contract);
-
-            // await perform transaction
-            const transactionParameters = {
-                from: currentAccount, // sender wallet address
-                to: _toAddress,  // receiver address
-                data: '0x',
-                value: ethers.utils.parseEther(_totalPrice),
-                // gasLimit: ethers.utils.hexlify(10000),
-                // gasPrice: ethers.utils.hexlify(parseInt(await MetamaskProvider.getGasPrice())),
-              }
-            await signer.sendTransaction(transactionParameters)
-            await contract.recordTransaction(currentAccount, _toAddress, _energyAmount, _totalPrice, _timestamp);
-        }
-        }catch(error) {
-            console.log(error);
-            setIsLoading(false);
-        }
     }
 
+    const getProviderData = async () => {
+        try {
+                if(!currentAccount)
+                {
+                    alert("Connect Your Wallet")
+                }
+                else {
+                    const MetamaskProvider = getMetamaskProvider();
+                    const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
+                    const providerData = await contract.providers(currentAccount);
+                    return providerData;
+                } 
+            }catch(error) {
+                console.log(error);
+            }
+    }
     // const pickWinner = async () => {
     //     try {
     //         if(!participated)
@@ -168,51 +215,51 @@ const SmartContractProvider = ({children}) => {
     //     }
     // }
 
-//     const getReadOnlyData = async (r) => {
-//     try {
-//     // use alchemy providers for retrieving data which is needed on page load
-//         const AlchemyProvider = getAlchemyProvider();
-//         const contract = new ethers.Contract(ContractAddress, ContractABI, AlchemyProvider);
-        
-//         const players_count = await contract.getPlayersCount();
-//         const total_amount = await contract.totalAmount();
-//         const time_left = await contract.getTimeLeft();
-//         const winners_data = await contract.getWinners();
+    //     const getReadOnlyData = async (r) => {
+    //     try {
+    //     // use alchemy providers for retrieving data which is needed on page load
+    //         const AlchemyProvider = getAlchemyProvider();
+    //         const contract = new ethers.Contract(ContractAddress, ContractABI, AlchemyProvider);
 
-//         // setPlayersCount(players_count.toNumber());
-//         // setTotalAmount(ethers.utils.formatEther(total_amount));
+    //         const players_count = await contract.getPlayersCount();
+    //         const total_amount = await contract.totalAmount();
+    //         const time_left = await contract.getTimeLeft();
+    //         const winners_data = await contract.getWinners();
 
-//         // const structuredWinners = winners_data.map((winner)=> ({
-//         //     winnerAddress: winner.winner,
-//         //     amount: ethers.utils.formatEther(winner.amount),
-//         //     keyword: keywordArray[~~(Math.random() * keywordArray.length)],
-//         // }))
-//         // setWinners(structuredWinners);
+    //         // setPlayersCount(players_count.toNumber());
+    //         // setTotalAmount(ethers.utils.formatEther(total_amount));
 
-//         // let rst;
-//         // if(r){
-//         //     rst = await contract.hasPlayer(r);
-//         //     setParticipated(rst);
-//         // }
+    //         // const structuredWinners = winners_data.map((winner)=> ({
+    //         //     winnerAddress: winner.winner,
+    //         //     amount: ethers.utils.formatEther(winner.amount),
+    //         //     keyword: keywordArray[~~(Math.random() * keywordArray.length)],
+    //         // }))
+    //         // setWinners(structuredWinners);
 
-//         // if(time_left.toNumber()===256)
-//         // {
-//         //     setTimeLeft(-1);
-//         // }
-//         // else
-//         // {
-//         //     setTimeLeft(time_left.mul(1000).toNumber());
-//         // }
-//     } catch(error){
-//         console.log(error);
-//     }
-//     // setIsReadLoading(false);
-// }    
+    //         // let rst;
+    //         // if(r){
+    //         //     rst = await contract.hasPlayer(r);
+    //         //     setParticipated(rst);
+    //         // }
+
+    //         // if(time_left.toNumber()===256)
+    //         // {
+    //         //     setTimeLeft(-1);
+    //         // }
+    //         // else
+    //         // {
+    //         //     setTimeLeft(time_left.mul(1000).toNumber());
+    //         // }
+    //     } catch(error){
+    //         console.log(error);
+    //     }
+    //     // setIsReadLoading(false);
+    // }    
     return (
-        <ParticipateContext.Provider value={{getMetamaskProvider, register, checkIfConnectedInPast, connectWallet, currentAccount, isLoading, getReadOnlyData}}>
+        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, currentAccount, isLoading, providers }}>
             {children}
-        </ParticipateContext.Provider>
+        </SmartContractContext.Provider>
     )
 }
 
-export default ParticipateProvider;
+export default SmartContractProvider;

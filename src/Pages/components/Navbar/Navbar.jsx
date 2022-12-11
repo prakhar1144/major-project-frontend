@@ -7,10 +7,14 @@ import { auth } from "../../../firebase";
 import { useState } from "react";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import { SmartContractContext } from "../../../Context/SmartContract";
+import { shortenAddress } from "../../../Utils/addressShortener";
 
 const drawerWidth = 240;
 
 const Navbar = (props) => {
+  const { connectWallet, currentAccount, isLoading } = React.useContext(SmartContractContext);
+
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
@@ -78,13 +82,13 @@ const Navbar = (props) => {
                 )
               })}
             </Box> */}
-            {user ? (
-              <Button onClick={() => handleLogout()} variant="outlined" size="small">
-                Sign Out
+            {currentAccount ? (
+              <Button variant="outlined" size="small">
+                {shortenAddress(currentAccount)}
               </Button>
             ) : (
-              <Button component={NavLink} to="user/signin" variant="outlined" size="small">
-                Sign in
+              <Button onClick={() => connectWallet()} variant="outlined" size="small">
+                Connect Wallet
               </Button>
             )}
           </Toolbar>
