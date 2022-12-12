@@ -11,10 +11,11 @@ import NearbyStation from './Pages/NearbyStation';
 import ProviderDashboard from './Pages/ProviderDashboard';
 
 function App() {
-  const { checkIfConnectedInPast } = React.useContext(SmartContractContext);
+  const { checkIfConnectedInPast, getAllProviders } = React.useContext(SmartContractContext);
 
   useEffect(() => {
     checkIfConnectedInPast();
+    // getAllProviders()
   }, []);
 
   return (

@@ -100,12 +100,13 @@ const SmartContractProvider = ({ children }) => {
         })
     }
 
-    const transactionListener = async (contract) => {
-        contract.on("transactionRecorded", () => {
+    const transactionListener = async (contract, _energyAmount) => {
+        contract.on("transactionRecorded", async () => {
             // setIsReadLoading(true);
             // getReadOnlyData(currentAccount);
             setIsLoading(false);
             console.log("transaction successfully recorded");
+            await fetch('https://api.thingspeak.com/update?api_key=UL4KQTJO4IL80PVJ&field3=' + _energyAmount + '&field4=1');
         })
     }
 
@@ -143,17 +144,17 @@ const SmartContractProvider = ({ children }) => {
                 const MetamaskProvider = getMetamaskProvider();
                 const signer = MetamaskProvider.getSigner();
                 const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
-                transactionListener(contract);
+                transactionListener(contract, _energyAmount);
 
                 // await perform transaction
-                const _value = parseInt(_totalPrice*10000000000).toString();
+                const _value = parseInt(_totalPrice * 10000000000).toString();
                 const transactionParameters = {
                     from: currentAccount, // sender wallet address
                     to: _toAddress,  // receiver address
                     value: BigNumber.from(_value).mul(BigNumber.from("100000000")),
                 }
                 // console.log(transactionParameters.value);
-                await signer.sendTransaction(transactionParameters)
+                await signer.sendTransaction(transactionParameters);
                 await contract.recordTransaction(currentAccount, _toAddress, _energyAmount, _value, _timestamp);
             }
         } catch (error) {
@@ -170,7 +171,7 @@ const SmartContractProvider = ({ children }) => {
             else {
                 const MetamaskProvider = getMetamaskProvider();
                 const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
-                const consumerData = await contract.consumers(currentAccount);
+                const consumerData = await contract.getTransactions(currentAccount);
                 console.log(currentAccount);
                 return consumerData;
             }
@@ -194,6 +195,20 @@ const SmartContractProvider = ({ children }) => {
             console.log(error);
         }
     }
+    const getAllProviders = async () => {
+        try {
+
+            const MetamaskProvider = getMetamaskProvider();
+            const contract = new ethers.Contract(ContractAddress, ContractABI, MetamaskProvider);
+            const providerList = await contract.providers();
+            console.log(providerList);
+            return providerList;
+
+        } catch (error) {
+            alert(error);
+        }
+    }
+
     // const pickWinner = async () => {
     //     try {
     //         if(!participated)
@@ -256,7 +271,7 @@ const SmartContractProvider = ({ children }) => {
     //     // setIsReadLoading(false);
     // }    
     return (
-        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, getConsumerData, currentAccount, isLoading, providers, isProviderConfirmed }}>
+        <SmartContractContext.Provider value={{ getMetamaskProvider, checkIfConnectedInPast, connectWallet, addProvider, payAmount, getConsumerData, getProviderData, getAllProviders, currentAccount, isLoading, providers, isProviderConfirmed }}>
             {children}
         </SmartContractContext.Provider>
     )

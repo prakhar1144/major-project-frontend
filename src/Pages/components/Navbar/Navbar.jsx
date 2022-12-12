@@ -1,9 +1,10 @@
-import { AppBar, Box, Button, CssBaseline, Drawer, GlobalStyles, IconButton, Link, Toolbar } from "@mui/material";
+import { AppBar, Box, Button, CssBaseline, Drawer, GlobalStyles, IconButton, Toolbar } from "@mui/material";
 import React from "react";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Container } from "@mui/system";
 import { SmartContractContext } from "../../../Context/SmartContract";
 import { shortenAddress } from "../../../Utils/addressShortener";
+import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -19,7 +20,7 @@ const Navbar = (props) => {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Link href="/" variant="h6" sx={{ my: 2 }}>LOGO</Link>
+      <Button component={Link} to="/">LOGO</Button>
     </Box>
   );
 
@@ -47,7 +48,8 @@ const Navbar = (props) => {
             >
               <MenuIcon />
             </IconButton>
-            <Link href="/" variant="h6" color="inherit" noWrap underline="none" sx={{ flexGrow: 1 }}>LOGO</Link>
+            <Button component={Link} to="/">LOGO</Button>
+
             {/* <Box component="nav" sx={{ display: { xs: 'none', sm: 'block' } }}>
               {navItems.map((item, index) => {
                 return (

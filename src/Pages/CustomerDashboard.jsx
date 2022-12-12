@@ -115,7 +115,7 @@ const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, total
 export default function CustomerDashboard() {
     const [scannerData, setScannerData] = useState(null);
 
-    const { currentAccount, addProvider, payAmount, getConsumerData, isProviderConfirmed } = React.useContext(SmartContractContext);
+    const { currentAccount, addProvider, payAmount, getConsumerData, getProviderData, isProviderConfirmed } = React.useContext(SmartContractContext);
 
     const initialProviderData = {
         name: '',
@@ -158,7 +158,7 @@ export default function CustomerDashboard() {
         setChargeData({
             ...chargeData,
             requiredPercent: temp === '' ? 0 : temp,
-            totalPrice: ((parseFloat(chargeData.rate) * parseFloat(temp === '' ? 0 : temp)) / 300.0).toFixed(10)
+            totalPrice: ((parseFloat(chargeData.rate) * parseFloat(temp === '' ? 0 : temp)) / 3000.0).toFixed(10)
         });
     };
     const submitAddProvider = (e) => {
@@ -170,8 +170,7 @@ export default function CustomerDashboard() {
         e.preventDefault();
         //console.log(chargeData);
         payAmount(chargeData.totalPrice, chargeData.requiredPercent, chargeData.providerWalletAddress, Date.now());
-        handleChargeCloseModal();
-        setChargeData(initialChargeData);
+        //handleChargeCloseModal();
     };
     const handleScan = (data) => {
         //console.log(data);
@@ -208,9 +207,9 @@ export default function CustomerDashboard() {
     };
     useEffect(() => {
         const fun = async () => {
-            const data = await getConsumerData();
-            console.log(data.addr);
-            console.log(BigNumber.from(data.consumed).toString());
+            // const data = await getConsumerData();
+            // console.log(data);
+            //console.log(BigNumber.from(data.consumed).toString());
         };
         if (currentAccount) fun();
     }, [currentAccount]);
@@ -226,7 +225,11 @@ export default function CustomerDashboard() {
                     <AddProviderForm open={isAddModalOpen} addProviderData={addProviderData} handleChange={handleChangeAddProvider} handleClose={handleAddCloseModal} submit={submitAddProvider} currentAccount={currentAccount} handleDownload={onClickDownload} isProviderConfirmed={isProviderConfirmed} />
                     <ChargeForm open={isChargeModalOpen} handleClose={handleChargeCloseModal} chargeData={chargeData} handleChange={handleChangePercent} submit={submitChargeData} setChargeData={setChargeData} handleScan={handleScan} scannerData={scannerData} />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6">Realtime Battery Charging Status</Typography>
+                    <iframe width="450" height="260" style={{ border: "1px solid #cccccc" }} src="https://thingspeak.com/channels/1977413/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+                </Grid>
+                <Grid item xs={12} md={6}>
                 </Grid>
             </Grid>
         </Container>
