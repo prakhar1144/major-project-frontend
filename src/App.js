@@ -6,7 +6,7 @@ import { SmartContractContext } from './Context/SmartContract';
 import Footer from './Pages/components/Footer';
 import Navbar from './Pages/components/Navbar/Navbar';
 import CustomerDashboard from './Pages/CustomerDashboard';
-import Homepage from './Pages/Homepage'
+import Homepage from './Pages/Homepage';
 import NearbyStation from './Pages/NearbyStation';
 import ProviderDashboard from './Pages/ProviderDashboard';
 

@@ -29,17 +29,18 @@ export default function SignUp() {
     };
     createUserWithEmailAndPassword(auth, userData.email, userData.password)
       .then((userCreds) => {
-        delete userData.password
+        delete userData.password;
         updateProfile(auth.currentUser, {
           displayName: `${userData.firstName} ${userData.lastName}`
-        }).then(() => {
-          localStorage.setItem('token', userCreds.user.toJSON().stsTokenManager.accessToken);
-          console.log('signed in');
-          navigate('/dashboard');
         })
+          .then(() => {
+            localStorage.setItem('token', userCreds.user.toJSON().stsTokenManager.accessToken);
+            console.log('signed in');
+            navigate('/dashboard');
+          })
           .catch((error) => {
             console.log(error.message);
-          })
+          });
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -57,7 +58,7 @@ export default function SignUp() {
             marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
+            alignItems: 'center'
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -69,50 +70,19 @@ export default function SignUp() {
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                />
+                <TextField name="firstName" required fullWidth id="firstName" label="First Name" autoFocus />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                />
+                <TextField required fullWidth id="lastName" label="Last Name" name="lastName" />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                />
+                <TextField required fullWidth id="email" label="Email Address" name="email" />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                />
+                <TextField required fullWidth name="password" label="Password" type="password" id="password" />
               </Grid>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign Up
             </Button>
             <Grid container justifyContent="flex-end">

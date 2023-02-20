@@ -1,4 +1,4 @@
-import { Box } from "@mui/material"
+import { Box } from '@mui/material';
 
 export default function Divider() {
   return (
@@ -8,7 +8,7 @@ export default function Divider() {
         height: '10px',
         background: 'url(dashbolt-keyline.svg) center no-repeat',
         border: 0,
-        backgroundSize: 'contain',
+        backgroundSize: 'contain'
       }}
     />
   );
