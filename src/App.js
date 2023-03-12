@@ -1,25 +1,36 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import SignIn from './Pages/Authentication/SignIn';
-import SignUp from './Pages/Authentication/SignUp';
+import React, { useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { SmartContractContext } from './Context/SmartContract';
+// import SignIn from './Pages/Authentication/SignIn';
+// import SignUp from './Pages/Authentication/SignUp';
 import Footer from './Pages/components/Footer';
 import Navbar from './Pages/components/Navbar/Navbar';
-import Dashboard from './Pages/Dashboard';
-import Homepage from './Pages/Homepage'
+import CustomerDashboard from './Pages/CustomerDashboard';
+import Homepage from './Pages/Homepage';
 import NearbyStation from './Pages/NearbyStation';
+import ProviderDashboard from './Pages/ProviderDashboard';
 
 function App() {
+  const { checkIfConnectedInPast, getAllProviders } = React.useContext(SmartContractContext);
+
+  useEffect(() => {
+    checkIfConnectedInPast();
+    // getAllProviders()
+  }, []);
+
   return (
-    <BrowserRouter>
+    <>
       <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/user/signin" element={<SignIn />} />
-        <Route path="/user/signup" element={<SignUp />} />
+        {/* <Route path="/user/signin" element={<SignIn />} />
+        <Route path="/user/signup" element={<SignUp />} /> */}
         <Route path="/nearby" element={<NearbyStation />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+        <Route path="/provider-dashboard" element={<ProviderDashboard />} />
       </Routes>
       <Footer />
-    </BrowserRouter>
+    </>
   );
 }
 

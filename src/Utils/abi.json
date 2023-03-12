@@ -1,0 +1,220 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "providerAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "transactionRecorded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_addr",
+          "type": "address"
+        }
+      ],
+      "name": "addConsumer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_addr",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_rate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_location",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_availableChargingPorts",
+          "type": "uint256"
+        }
+      ],
+      "name": "addProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "consumers",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "consumed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "oldUser",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "providers",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "supplied",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "availableChargingPorts",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "oldUser",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_consumer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_provider",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_energyAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "transactions",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "consumer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "energyAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_addr",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_rate",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateProviderRate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
