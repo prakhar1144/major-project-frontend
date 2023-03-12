@@ -59,11 +59,11 @@ export default function ProviderDashboard() {
     series: [
       {
         name: 'Grid Tarrif',
-        data: [10, 9, 8, 10, 11, 9.4, 11.5]
+        data: []
       },
       {
         name: 'Charging Tarrif',
-        data: [11, 10, 9, 11, 12, 10.4, 12.5]
+        data: []
       }
     ],
     options: {
@@ -86,15 +86,7 @@ export default function ProviderDashboard() {
       },
       xaxis: {
         type: 'datetime',
-        categories: [
-          '2018-09-19T00:00:00.000Z',
-          '2018-09-19T01:30:00.000Z',
-          '2018-09-19T02:30:00.000Z',
-          '2018-09-19T03:30:00.000Z',
-          '2018-09-19T04:30:00.000Z',
-          '2018-09-19T05:30:00.000Z',
-          '2018-09-19T06:30:00.000Z'
-        ],
+        categories: [],
         labels: {
           show: true,
           hideOverlappingLabels: true,
@@ -264,6 +256,12 @@ export default function ProviderDashboard() {
         width: 2,
         colors: ['transparent']
       },
+      legend: {
+        show: true,
+        labels: {
+          useSeriesColors: true
+        }
+      },
       xaxis: {
         categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
         labels: {
@@ -355,6 +353,50 @@ export default function ProviderDashboard() {
       }
     }
   });
+
+  let oldSeries = [
+    {
+      name: 'Grid Tarrif',
+      data: []
+    },
+    {
+      name: 'Charging Tarrif',
+      data: []
+    }
+  ];
+  let oldCategory = [];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const val = (Math.random() * 4 + 8).toFixed(2);
+      const newSeries = [
+        {
+          name: 'Grid Tarrif',
+          data: [...oldSeries[0].data, val]
+        },
+        {
+          name: 'Charging Tarrif',
+          data: [...oldSeries[1].data, (val * 1.15).toFixed(2)]
+        }
+      ];
+      oldSeries = newSeries;
+      const newCategory = [...oldCategory, Date.now()];
+      oldCategory = newCategory;
+      setChartData({
+        ...chartData,
+        series: newSeries,
+        options: {
+          ...chartData.options,
+          xaxis: {
+            ...chartData.options.xaxis,
+            categories: newCategory
+          }
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+  // console.log(chartData);
   return (
     <Container sx={{ paddingTop: 2 }} maxWidth="xl">
       <Grid container sx={{ backgroundColor: '#121243', borderRadius: '10px', p: 2, color: 'white' }} spacing={2}>
