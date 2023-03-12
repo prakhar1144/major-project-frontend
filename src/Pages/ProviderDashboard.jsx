@@ -1,7 +1,44 @@
-import { Container, Box, Card, CardContent, Grid, Typography } from '@mui/material';
+import { Container, Box, Card, CardContent, Grid, Typography, Paper } from '@mui/material';
 import { BigNumber, ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { SmartContractContext } from '../Context/SmartContract';
+import ReactApexChart from 'react-apexcharts';
+
+const ProviderCard = (props) => {
+  const { providerInfo } = props;
+  return (
+    providerInfo && (
+      <Card
+        sx={{
+          height: 'auto',
+          margin: '0 auto',
+          width: '100%',
+          backgroundColor: 'transparent',
+          color: 'white'
+        }}
+        elevation={0}
+      >
+        <CardContent>
+          <Typography variant="body2">
+            <strong>Rate: </strong>$ {(ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000).toFixed(2)}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Location: </strong>
+            {providerInfo.location}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Port Type: </strong>
+            {ethers.utils.formatEther(providerInfo.availableChargingPorts) * 1000000000000000000}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Total Power Supplied: </strong>
+            {(ethers.utils.formatEther(providerInfo.supplied) * 1000000000000000000).toFixed(4)} U
+          </Typography>
+        </CardContent>
+      </Card>
+    )
+  );
+};
 
 export default function ProviderDashboard() {
   const { currentAccount, getProviderData } = React.useContext(SmartContractContext);
@@ -17,41 +54,344 @@ export default function ProviderDashboard() {
     };
     if (currentAccount) fun();
   }, [currentAccount]);
+
+  const [chartData, setChartData] = useState({
+    series: [
+      {
+        name: 'Grid Tarrif',
+        data: [10, 9, 8, 10, 11, 9.4, 11.5]
+      },
+      {
+        name: 'Charging Tarrif',
+        data: [11, 10, 9, 11, 12, 10.4, 12.5]
+      }
+    ],
+    options: {
+      chart: {
+        height: 300,
+        type: 'area'
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth',
+        width: 3
+      },
+      legend: {
+        show: true,
+        labels: {
+          useSeriesColors: true
+        }
+      },
+      xaxis: {
+        type: 'datetime',
+        categories: [
+          '2018-09-19T00:00:00.000Z',
+          '2018-09-19T01:30:00.000Z',
+          '2018-09-19T02:30:00.000Z',
+          '2018-09-19T03:30:00.000Z',
+          '2018-09-19T04:30:00.000Z',
+          '2018-09-19T05:30:00.000Z',
+          '2018-09-19T06:30:00.000Z'
+        ],
+        labels: {
+          show: true,
+          hideOverlappingLabels: true,
+          showDuplicates: false,
+          trim: false,
+          style: {
+            colors: 'white',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-xaxis-label'
+          }
+        },
+        axisBorder: {
+          show: true,
+          color: 'white',
+          height: 1,
+          width: '100%',
+          offsetX: 0,
+          offsetY: 0
+        },
+        axisTicks: {
+          show: true,
+          borderType: 'solid',
+          color: 'white',
+          height: 6,
+          offsetX: 0,
+          offsetY: 0
+        },
+        crosshairs: {
+          show: false
+        }
+      },
+      yaxis: {
+        labels: {
+          show: true,
+          align: 'right',
+          minWidth: 0,
+          maxWidth: 160,
+          style: {
+            colors: 'white',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-yaxis-label'
+          },
+          offsetX: 0,
+          offsetY: 0,
+          rotate: 0
+        },
+        axisBorder: {
+          show: true,
+          color: 'white',
+          offsetX: 0,
+          offsetY: 0
+        },
+        axisTicks: {
+          show: true,
+          borderType: 'solid',
+          color: 'white',
+          width: 6,
+          offsetX: 0,
+          offsetY: 0
+        },
+        crosshairs: {
+          show: true,
+          position: 'back',
+          stroke: {
+            color: '#b6b6b6',
+            width: 1,
+            dashArray: 0
+          }
+        }
+      },
+      tooltip: {
+        x: {
+          format: 'dd/MM/yy HH:mm'
+        }
+      }
+    }
+  });
+  const [pieChartData, setPieData] = useState({
+    series: [67],
+    colors: ['#20E647'],
+    options: {
+      chart: {
+        height: 300,
+        type: 'radialBar'
+      },
+      plotOptions: {
+        radialBar: {
+          hollow: {
+            margin: 0,
+            size: '60%',
+            background: '#293450'
+          },
+          track: {
+            dropShadow: {
+              enabled: true,
+              top: 2,
+              left: 0,
+              blur: 4,
+              opacity: 0.15
+            }
+          },
+          dataLabels: {
+            name: {
+              offsetY: -10,
+              color: '#fff',
+              fontSize: '13px'
+            },
+            value: {
+              color: '#fff',
+              fontSize: '30px',
+              show: true
+            }
+          }
+        }
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'dark',
+          type: 'vertical',
+          gradientToColors: ['#87D4F9'],
+          stops: [0, 100]
+        }
+      },
+      stroke: {
+        lineCap: 'round'
+      },
+      labels: ['Usage']
+    }
+  });
+  const [costChart, setCostChart] = useState({
+    series: [
+      {
+        name: 'Net Profit',
+        data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+      },
+      {
+        name: 'Service Cost',
+        data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+      },
+      {
+        name: 'Revenue',
+        data: [79, 96, 93, 82, 106, 106, 115, 113, 107]
+      }
+    ],
+    options: {
+      chart: {
+        type: 'bar',
+        height: 300
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%',
+          endingShape: 'rounded'
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+      },
+      xaxis: {
+        categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        labels: {
+          show: true,
+          hideOverlappingLabels: true,
+          showDuplicates: false,
+          trim: false,
+          style: {
+            colors: 'white',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-xaxis-label'
+          }
+        },
+        axisBorder: {
+          show: true,
+          color: 'white',
+          height: 1,
+          width: '100%',
+          offsetX: 0,
+          offsetY: 0
+        },
+        axisTicks: {
+          show: true,
+          borderType: 'solid',
+          color: 'white',
+          height: 6,
+          offsetX: 0,
+          offsetY: 0
+        },
+        crosshairs: {
+          show: false
+        }
+      },
+      yaxis: {
+        title: {
+          text: '$ (thousands)'
+        },
+        labels: {
+          show: true,
+          align: 'right',
+          minWidth: 0,
+          maxWidth: 160,
+          style: {
+            colors: 'white',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            cssClass: 'apexcharts-yaxis-label'
+          },
+          offsetX: 0,
+          offsetY: 0,
+          rotate: 0
+        },
+        axisBorder: {
+          show: true,
+          color: 'white',
+          offsetX: 0,
+          offsetY: 0
+        },
+        axisTicks: {
+          show: true,
+          borderType: 'solid',
+          color: 'white',
+          width: 6,
+          offsetX: 0,
+          offsetY: 0
+        },
+        crosshairs: {
+          show: true,
+          position: 'back',
+          stroke: {
+            color: '#b6b6b6',
+            width: 1,
+            dashArray: 0
+          }
+        }
+      },
+      fill: {
+        opacity: 1
+      },
+      tooltip: {
+        y: {
+          formatter(val) {
+            return `$ ${val} thousands`;
+          }
+        }
+      }
+    }
+  });
   return (
-    <Container sx={{ paddingTop: 2 }}>
-      <Grid container>
+    <Container sx={{ paddingTop: 2 }} maxWidth="xl">
+      <Grid container sx={{ backgroundColor: '#121243', borderRadius: '10px', p: 2, color: 'white' }} spacing={2}>
         <Grid item xs={12}>
-          <Typography sx={{ textAlign: 'center', fontWeight: 'bold' }} variant="h5">
-            Provider Dashboard
+          <Typography sx={{ textAlign: 'left', fontWeight: 'bold', pb: 2 }} variant="h5">
+            Power Management Console
           </Typography>
         </Grid>
+        <Grid item xs={12} md={8}>
+          <Typography variant="body2" fontWeight={600} pb={1}>
+            Realtime Pricing
+          </Typography>
+          <Box py={2} component={Paper} bgcolor="#242443" elevation={0}>
+            <ReactApexChart options={chartData.options} series={chartData.series} type="area" height={300} />
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Typography variant="body2" fontWeight={600} pb={1}>
+            My Charging Outlets
+          </Typography>
+          <Box component={Paper} bgcolor="#242443" elevation={0} mb={1}>
+            <ProviderCard providerInfo={providerInfo} />
+          </Box>
+          <Typography variant="body2" fontWeight={600} pb={1}>
+            Power Usage
+          </Typography>
+          <Box component={Paper} bgcolor="#242443" elevation={0} mb={1}>
+            <ReactApexChart options={pieChartData.options} type="radialBar" height={212} series={pieChartData.series} />
+          </Box>
+        </Grid>
         <Grid item xs={12}>
-          <div style={{ height: 'auto', margin: '0 auto', maxWidth: 400, width: '100%' }} />
-          {providerInfo && (
-            <Card sx={{ minWidth: 275, height: 'auto', margin: '0 auto', maxWidth: 400, width: '100%' }}>
-              <CardContent>
-                <Typography sx={{ fontSize: 15, textAlign: 'center', fontWeight: 'bold' }} color="text.secondary" gutterBottom>
-                  My EV Charging Station
-                </Typography>
-                <Typography>
-                  <strong>Rate: </strong>
-                  {ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000}
-                </Typography>
-                <Typography>
-                  <strong>Location: </strong>
-                  {providerInfo.location}
-                </Typography>
-                <Typography>
-                  <strong>Port Type: </strong>
-                  {ethers.utils.formatEther(providerInfo.availableChargingPorts) * 1000000000000000000}
-                </Typography>
-                <Typography>
-                  <strong>Total Power Supplied: </strong>
-                  {ethers.utils.formatEther(providerInfo.supplied) * 1000000000000000000} U
-                </Typography>
-              </CardContent>
-            </Card>
-          )}
+          <Typography variant="body2" fontWeight={600} pb={1}>
+            Cost Explorer
+          </Typography>
+          <Box component={Paper} bgcolor="#242443" elevation={0} mb={1} py={2}>
+            <ReactApexChart options={costChart.options} series={costChart.series} type="bar" height={300} />
+          </Box>
         </Grid>
       </Grid>
     </Container>

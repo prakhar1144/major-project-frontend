@@ -277,7 +277,7 @@ const SmartContractProvider = ({ children }) => {
       providers,
       isProviderConfirmed
     }),
-    []
+    [currentAccount, isLoading, providers, isProviderConfirmed]
   );
   return <SmartContractContext.Provider value={value}>{children}</SmartContractContext.Provider>;
 };
