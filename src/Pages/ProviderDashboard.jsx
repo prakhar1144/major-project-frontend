@@ -5,7 +5,7 @@ import { SmartContractContext } from '../Context/SmartContract';
 import ReactApexChart from 'react-apexcharts';
 
 const ProviderCard = (props) => {
-  const { providerInfo } = props;
+  const { providerInfo, rate } = props;
   return (
     providerInfo && (
       <Card
@@ -20,7 +20,8 @@ const ProviderCard = (props) => {
       >
         <CardContent>
           <Typography variant="body2">
-            <strong>Rate: </strong>$ {(ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000).toFixed(2)}
+            <strong>Rate: </strong>$ {rate}
+            {/* (ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000).toFixed(2) */}
           </Typography>
           <Typography variant="body2">
             <strong>Location: </strong>
@@ -59,11 +60,11 @@ export default function ProviderDashboard() {
     series: [
       {
         name: 'Grid Tarrif',
-        data: []
+        data: [10]
       },
       {
         name: 'Charging Tarrif',
-        data: []
+        data: [11.5]
       }
     ],
     options: {
@@ -76,7 +77,7 @@ export default function ProviderDashboard() {
       },
       stroke: {
         curve: 'smooth',
-        width: 3
+        width: 2
       },
       legend: {
         show: true,
@@ -357,14 +358,14 @@ export default function ProviderDashboard() {
   let oldSeries = [
     {
       name: 'Grid Tarrif',
-      data: []
+      data: [10]
     },
     {
       name: 'Charging Tarrif',
-      data: []
+      data: [11.5]
     }
   ];
-  let oldCategory = [];
+  let oldCategory = [Date.now()];
   useEffect(() => {
     const interval = setInterval(() => {
       const val = (Math.random() * 4 + 8).toFixed(2);
@@ -392,7 +393,7 @@ export default function ProviderDashboard() {
           }
         }
       });
-    }, 1000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -418,7 +419,7 @@ export default function ProviderDashboard() {
             My Charging Outlets
           </Typography>
           <Box component={Paper} bgcolor="#242443" elevation={0} mb={1}>
-            <ProviderCard providerInfo={providerInfo} />
+            <ProviderCard providerInfo={providerInfo} rate={chartData.series[1].data[chartData.series[1].data.length - 1]} />
           </Box>
           <Typography variant="body2" fontWeight={600} pb={1}>
             Power Usage
