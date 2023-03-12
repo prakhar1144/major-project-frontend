@@ -1,184 +1,36 @@
-import { Container, Box, Card, CardContent, Grid, Typography, Paper } from '@mui/material';
-import { BigNumber, ethers } from 'ethers';
+import { Container, Box, Grid, Typography, Paper } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { SmartContractContext } from '../Context/SmartContract';
 import ReactApexChart from 'react-apexcharts';
 import axios from 'axios';
-
-const ProviderCard = (props) => {
-  const { providerInfo, rate } = props;
-  return (
-    providerInfo && (
-      <Card
-        sx={{
-          height: 'auto',
-          margin: '0 auto',
-          width: '100%',
-          backgroundColor: 'transparent',
-          color: 'white'
-        }}
-        elevation={0}
-      >
-        <CardContent>
-          <Typography variant="body2">
-            <strong>Rate: </strong>₹ {rate}
-            {/* (ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000).toFixed(2) */}
-          </Typography>
-          <Typography variant="body2">
-            <strong>Location: </strong>
-            {providerInfo.location}
-          </Typography>
-          <Typography variant="body2">
-            <strong>Port Type: </strong>
-            {ethers.utils.formatEther(providerInfo.availableChargingPorts) * 1000000000000000000}
-          </Typography>
-          <Typography variant="body2">
-            <strong>Total Power Supplied: </strong>
-            {(ethers.utils.formatEther(providerInfo.supplied) * 1000000000000000000).toFixed(4)} U
-          </Typography>
-        </CardContent>
-      </Card>
-    )
-  );
-};
+import Chart from './components/Chart';
+import ProviderCard from './components/ProviderCard';
 
 export default function ProviderDashboard() {
   const { currentAccount, getProviderData } = React.useContext(SmartContractContext);
 
   const [providerInfo, setProviderInfo] = useState(null);
-  const [chartData, setChartData] = useState({
-    series: [
-      {
-        name: 'Disco Rate',
-        data: [10]
-      },
-      {
-        name: 'Charging Rate',
-        data: [11.5]
-      }
-    ],
-    options: {
-      chart: {
-        height: 300,
-        type: 'area'
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth',
-        width: 2
-      },
-      legend: {
-        show: true,
-        labels: {
-          useSeriesColors: true
-        }
-      },
-      xaxis: {
-        title: {
-          text: 'Time',
-          style: {
-            color: 'white'
-          }
-        },
-        type: 'datetime',
-        categories: [],
-        labels: {
-          show: true,
-          hideOverlappingLabels: true,
-          showDuplicates: false,
-          trim: false,
-          style: {
-            colors: 'white',
-            fontSize: '12px',
-            fontFamily: 'Helvetica, Arial, sans-serif',
-            fontWeight: 400,
-            cssClass: 'apexcharts-xaxis-label'
-          }
-        },
-        axisBorder: {
-          show: true,
-          color: 'white',
-          height: 1,
-          width: '100%',
-          offsetX: 0,
-          offsetY: 0
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'white',
-          height: 6,
-          offsetX: 0,
-          offsetY: 0
-        },
-        crosshairs: {
-          show: false
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Rates',
-          style: {
-            color: 'white'
-          }
-        },
-        labels: {
-          show: true,
-          align: 'right',
-          minWidth: 0,
-          maxWidth: 160,
-          style: {
-            colors: 'white',
-            fontSize: '12px',
-            fontFamily: 'Helvetica, Arial, sans-serif',
-            fontWeight: 400,
-            cssClass: 'apexcharts-yaxis-label'
-          },
-          offsetX: 0,
-          offsetY: 0,
-          rotate: 0
-        },
-        axisBorder: {
-          show: true,
-          color: 'white',
-          offsetX: 0,
-          offsetY: 0
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'white',
-          width: 6,
-          offsetX: 0,
-          offsetY: 0
-        },
-        crosshairs: {
-          show: true,
-          position: 'back',
-          stroke: {
-            color: '#b6b6b6',
-            width: 1,
-            dashArray: 0
-          }
-        }
-      },
-      tooltip: {
-        x: {
-          format: 'dd/MM/yy HH:mm'
-        },
-        y: {
-          formatter(val) {
-            return `₹ ${val.toFixed(2)} / KWh`;
-          }
-        }
-      }
+  const [realtimeSeries, setRealtimeSeries] = useState([
+    {
+      name: 'Disco Rate',
+      data: [10]
+    },
+    {
+      name: 'Charging Rate',
+      data: [11.5]
     }
-  });
+  ]);
+  const [realtimeCategory, setRealtimeCategory] = useState([Date.now()]);
+  const [comptSeries, setComptSeries] = useState([
+    {
+      name: 'Charging Rate',
+      data: []
+    }
+  ]);
+  const [comptCategory, setComptCategory] = useState([Date.now()]);
   const [pieChartData, setPieData] = useState({
-    series: [67],
     colors: ['#20E647'],
+    series: [67],
     options: {
       chart: {
         height: 300,
@@ -229,139 +81,6 @@ export default function ProviderDashboard() {
       labels: ['Usage']
     }
   });
-  const [comptChart, setComptChart] = useState({
-    series: [
-      {
-        name: 'Charging Rate',
-        data: []
-      }
-    ],
-    options: {
-      chart: {
-        type: 'bar',
-        height: 300
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '55%',
-          endingShape: 'rounded'
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent']
-      },
-      legend: {
-        show: true,
-        labels: {
-          useSeriesColors: true
-        }
-      },
-      xaxis: {
-        title: {
-          text: 'Charging Station Name',
-          style: {
-            color: 'white'
-          }
-        },
-        categories: [],
-        labels: {
-          show: true,
-          hideOverlappingLabels: true,
-          showDuplicates: false,
-          trim: false,
-          style: {
-            colors: 'white',
-            fontSize: '12px',
-            fontFamily: 'Helvetica, Arial, sans-serif',
-            fontWeight: 400,
-            cssClass: 'apexcharts-xaxis-label'
-          }
-        },
-        axisBorder: {
-          show: true,
-          color: 'white',
-          height: 1,
-          width: '100%',
-          offsetX: 0,
-          offsetY: 0
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'white',
-          height: 6,
-          offsetX: 0,
-          offsetY: 0
-        },
-        crosshairs: {
-          show: false
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Rates',
-          style: {
-            color: 'white'
-          }
-        },
-        labels: {
-          show: true,
-          align: 'right',
-          minWidth: 0,
-          maxWidth: 160,
-          style: {
-            colors: 'white',
-            fontSize: '12px',
-            fontFamily: 'Helvetica, Arial, sans-serif',
-            fontWeight: 400,
-            cssClass: 'apexcharts-yaxis-label'
-          },
-          offsetX: 0,
-          offsetY: 0,
-          rotate: 0
-        },
-        axisBorder: {
-          show: true,
-          color: 'white',
-          offsetX: 0,
-          offsetY: 0
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'white',
-          width: 6,
-          offsetX: 0,
-          offsetY: 0
-        },
-        crosshairs: {
-          show: true,
-          position: 'back',
-          stroke: {
-            color: '#b6b6b6',
-            width: 1,
-            dashArray: 0
-          }
-        }
-      },
-      fill: {
-        opacity: 1
-      },
-      tooltip: {
-        y: {
-          formatter(val) {
-            return `₹ ${val.toFixed(2)} / KWh`;
-          }
-        }
-      }
-    }
-  });
 
   const getNearbyData = async () => {
     const url =
@@ -389,42 +108,22 @@ export default function ProviderDashboard() {
       setProviderInfo(data);
       // console.log(data);
       const nearbyData = await getNearbyData();
-      const comptSeries = [
+      const newComptSeries = [
         {
           name: 'Charging Rate',
-          data: nearbyData.map((item) =>
-            ((1 + item.margin / 100.0) * chartData.series[0].data[chartData.series[0].data.length - 1]).toFixed(2)
-          )
+          data: nearbyData.map((item) => ((1 + item.margin / 100.0) * realtimeSeries[0].data[realtimeSeries[0].data.length - 1]).toFixed(2))
         }
       ];
-      const comptCategory = nearbyData.map((item) => item.name);
+      const newComptCategory = nearbyData.map((item) => item.name);
 
-      setComptChart({
-        ...comptChart,
-        series: comptSeries,
-        options: {
-          ...comptChart.options,
-          xaxis: {
-            ...comptChart.options.xaxis,
-            categories: comptCategory
-          }
-        }
-      });
+      setComptSeries(newComptSeries);
+      setComptCategory(newComptCategory);
     };
     if (currentAccount) fun();
   }, [currentAccount]);
 
-  let oldSeries = [
-    {
-      name: 'Disco Rate',
-      data: [10]
-    },
-    {
-      name: 'Charging Rate',
-      data: [11.5]
-    }
-  ];
-  let oldCategory = [Date.now()];
+  let oldSeries = realtimeSeries;
+  let oldCategory = realtimeCategory;
   useEffect(() => {
     const interval = setInterval(() => {
       const val = (Math.random() * 4 + 8).toFixed(2);
@@ -441,17 +140,8 @@ export default function ProviderDashboard() {
       oldSeries = newSeries;
       const newCategory = [...oldCategory, Date.now()];
       oldCategory = newCategory;
-      setChartData({
-        ...chartData,
-        series: newSeries,
-        options: {
-          ...chartData.options,
-          xaxis: {
-            ...chartData.options.xaxis,
-            categories: newCategory
-          }
-        }
-      });
+      setRealtimeSeries(newSeries);
+      setRealtimeCategory(newCategory);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -471,7 +161,25 @@ export default function ProviderDashboard() {
             Realtime Pricing
           </Typography>
           <Box py={2} component={Paper} bgcolor="#242443" elevation={0}>
-            <ReactApexChart options={chartData.options} series={chartData.series} type="area" height={300} />
+            <Chart
+              categories={realtimeCategory}
+              series={realtimeSeries}
+              height={300}
+              type="area"
+              yTitle="Rate"
+              xTitle="Time"
+              xType="datetime"
+              tooltip={{
+                x: {
+                  format: 'dd/MM/yy HH:mm'
+                },
+                y: {
+                  formatter(val) {
+                    return `₹ ${val.toFixed(2)} / KWh`;
+                  }
+                }
+              }}
+            />
           </Box>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -479,7 +187,7 @@ export default function ProviderDashboard() {
             My Charging Outlets
           </Typography>
           <Box component={Paper} bgcolor="#242443" elevation={0} mb={1}>
-            <ProviderCard providerInfo={providerInfo} rate={chartData.series[1].data[chartData.series[1].data.length - 1]} />
+            <ProviderCard providerInfo={providerInfo} rate={realtimeSeries[1].data[realtimeSeries[1].data.length - 1]} />
           </Box>
           <Typography variant="body2" fontWeight={600} pb={1}>
             Power Usage
@@ -493,7 +201,22 @@ export default function ProviderDashboard() {
             Nearby Providers
           </Typography>
           <Box component={Paper} bgcolor="#242443" elevation={0} mb={1} py={2}>
-            <ReactApexChart options={comptChart.options} series={comptChart.series} type="bar" height={300} />
+            <Chart
+              categories={comptCategory}
+              series={comptSeries}
+              height={300}
+              type="bar"
+              yTitle="Rate"
+              xTitle="Charging Station Name"
+              dataLabels
+              tooltip={{
+                y: {
+                  formatter(val) {
+                    return `₹ ${val.toFixed(2)} / KWh`;
+                  }
+                }
+              }}
+            />
           </Box>
         </Grid>
       </Grid>
