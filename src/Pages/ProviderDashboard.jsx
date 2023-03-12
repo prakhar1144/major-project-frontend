@@ -3,6 +3,7 @@ import { BigNumber, ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { SmartContractContext } from '../Context/SmartContract';
 import ReactApexChart from 'react-apexcharts';
+import axios from 'axios';
 
 const ProviderCard = (props) => {
   const { providerInfo, rate } = props;
@@ -20,7 +21,7 @@ const ProviderCard = (props) => {
       >
         <CardContent>
           <Typography variant="body2">
-            <strong>Rate: </strong>$ {rate}
+            <strong>Rate: </strong>₹ {rate}
             {/* (ethers.utils.formatEther(providerInfo.rate) * 1000000000000000000).toFixed(2) */}
           </Typography>
           <Typography variant="body2">
@@ -45,25 +46,14 @@ export default function ProviderDashboard() {
   const { currentAccount, getProviderData } = React.useContext(SmartContractContext);
 
   const [providerInfo, setProviderInfo] = useState(null);
-
-  useEffect(() => {
-    const fun = async () => {
-      const data = await getProviderData();
-      console.log(data);
-      setProviderInfo(data);
-      // console.log(BigNumber.from(data.consumed).toString());
-    };
-    if (currentAccount) fun();
-  }, [currentAccount]);
-
   const [chartData, setChartData] = useState({
     series: [
       {
-        name: 'Grid Tarrif',
+        name: 'Disco Rate',
         data: [10]
       },
       {
-        name: 'Charging Tarrif',
+        name: 'Charging Rate',
         data: [11.5]
       }
     ],
@@ -86,6 +76,12 @@ export default function ProviderDashboard() {
         }
       },
       xaxis: {
+        title: {
+          text: 'Time',
+          style: {
+            color: 'white'
+          }
+        },
         type: 'datetime',
         categories: [],
         labels: {
@@ -122,6 +118,12 @@ export default function ProviderDashboard() {
         }
       },
       yaxis: {
+        title: {
+          text: 'Rates',
+          style: {
+            color: 'white'
+          }
+        },
         labels: {
           show: true,
           align: 'right',
@@ -165,6 +167,11 @@ export default function ProviderDashboard() {
       tooltip: {
         x: {
           format: 'dd/MM/yy HH:mm'
+        },
+        y: {
+          formatter(val) {
+            return `₹ ${val.toFixed(2)} / KWh`;
+          }
         }
       }
     }
@@ -222,19 +229,11 @@ export default function ProviderDashboard() {
       labels: ['Usage']
     }
   });
-  const [costChart, setCostChart] = useState({
+  const [comptChart, setComptChart] = useState({
     series: [
       {
-        name: 'Net Profit',
-        data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
-      },
-      {
-        name: 'Service Cost',
-        data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
-      },
-      {
-        name: 'Revenue',
-        data: [79, 96, 93, 82, 106, 106, 115, 113, 107]
+        name: 'Charging Rate',
+        data: []
       }
     ],
     options: {
@@ -264,7 +263,13 @@ export default function ProviderDashboard() {
         }
       },
       xaxis: {
-        categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        title: {
+          text: 'Charging Station Name',
+          style: {
+            color: 'white'
+          }
+        },
+        categories: [],
         labels: {
           show: true,
           hideOverlappingLabels: true,
@@ -300,7 +305,10 @@ export default function ProviderDashboard() {
       },
       yaxis: {
         title: {
-          text: '$ (thousands)'
+          text: 'Rates',
+          style: {
+            color: 'white'
+          }
         },
         labels: {
           show: true,
@@ -348,20 +356,71 @@ export default function ProviderDashboard() {
       tooltip: {
         y: {
           formatter(val) {
-            return `$ ${val} thousands`;
+            return `₹ ${val.toFixed(2)} / KWh`;
           }
         }
       }
     }
   });
 
+  const getNearbyData = async () => {
+    const url =
+      'https://sheets.googleapis.com/v4/spreadsheets/1Wy-y0_h53ioFGRyv_1bu87dotUOOkRenBrM5Re4MuAY/values/A:G?key=AIzaSyBWkq8DAo4pLZWIGCyGVvZFfTArgf7FbVQ';
+    try {
+      const result = await axios.get(url);
+
+      const tempRows = result.data.values.map((item, index) => {
+        if (index > 0) {
+          return { name: item[0].split(',')[0], margin: item[6] };
+        }
+        return {};
+      });
+      // console.log(rows)
+      return tempRows.slice(1);
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const fun = async () => {
+      const data = await getProviderData();
+      setProviderInfo(data);
+      // console.log(data);
+      const nearbyData = await getNearbyData();
+      const comptSeries = [
+        {
+          name: 'Charging Rate',
+          data: nearbyData.map((item) =>
+            ((1 + item.margin / 100.0) * chartData.series[0].data[chartData.series[0].data.length - 1]).toFixed(2)
+          )
+        }
+      ];
+      const comptCategory = nearbyData.map((item) => item.name);
+
+      setComptChart({
+        ...comptChart,
+        series: comptSeries,
+        options: {
+          ...comptChart.options,
+          xaxis: {
+            ...comptChart.options.xaxis,
+            categories: comptCategory
+          }
+        }
+      });
+    };
+    if (currentAccount) fun();
+  }, [currentAccount]);
+
   let oldSeries = [
     {
-      name: 'Grid Tarrif',
+      name: 'Disco Rate',
       data: [10]
     },
     {
-      name: 'Charging Tarrif',
+      name: 'Charging Rate',
       data: [11.5]
     }
   ];
@@ -371,11 +430,11 @@ export default function ProviderDashboard() {
       const val = (Math.random() * 4 + 8).toFixed(2);
       const newSeries = [
         {
-          name: 'Grid Tarrif',
+          name: 'Disco Rate',
           data: [...oldSeries[0].data, val]
         },
         {
-          name: 'Charging Tarrif',
+          name: 'Charging Rate',
           data: [...oldSeries[1].data, (val * 1.15).toFixed(2)]
         }
       ];
@@ -397,9 +456,10 @@ export default function ProviderDashboard() {
 
     return () => clearInterval(interval);
   }, []);
+
   // console.log(chartData);
   return (
-    <Container sx={{ paddingTop: 2 }} maxWidth="xl">
+    <Container sx={{ paddingTop: 2 }} maxWidth="xxl">
       <Grid container sx={{ backgroundColor: '#121243', borderRadius: '10px', p: 2, color: 'white' }} spacing={2}>
         <Grid item xs={12}>
           <Typography sx={{ textAlign: 'left', fontWeight: 'bold', pb: 2 }} variant="h5">
@@ -430,10 +490,10 @@ export default function ProviderDashboard() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" fontWeight={600} pb={1}>
-            Cost Explorer
+            Nearby Providers
           </Typography>
           <Box component={Paper} bgcolor="#242443" elevation={0} mb={1} py={2}>
-            <ReactApexChart options={costChart.options} series={costChart.series} type="bar" height={300} />
+            <ReactApexChart options={comptChart.options} series={comptChart.series} type="bar" height={300} />
           </Box>
         </Grid>
       </Grid>

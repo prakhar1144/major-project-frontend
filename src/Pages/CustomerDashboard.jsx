@@ -311,7 +311,7 @@ export default function CustomerDashboard() {
   useEffect(() => {
     const fun = async () => {
       // const data = await getConsumerData();
-      // console.log(data);
+      // // console.log(data);
       // console.log(BigNumber.from(data.consumed).toString());
     };
     if (currentAccount) fun();

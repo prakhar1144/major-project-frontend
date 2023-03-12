@@ -113,12 +113,13 @@ const SmartContractProvider = ({ children }) => {
         // alert('Connect Your Wallet');
       } else {
         setIsLoading(true);
-        const MetamaskProvider = getMetamaskProvider();
-        const signer = MetamaskProvider.getSigner();
-        const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
-        providerListener(contract);
-        await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
-        setIsProviderConfirmed(true);
+        // const MetamaskProvider = getMetamaskProvider();
+        // const signer = MetamaskProvider.getSigner();
+        // const contract = new ethers.Contract(ContractAddress, ContractABI, signer);
+        // providerListener(contract);
+        // await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
+        // setIsProviderConfirmed(true);
+        console.log('okay');
       }
     } catch (error) {
       console.log(error);
