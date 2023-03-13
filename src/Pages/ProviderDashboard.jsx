@@ -1,4 +1,4 @@
-import { Container, Box, Grid, Typography, Paper } from '@mui/material';
+import { Container, Box, Grid, Typography, Paper, FormControl, InputLabel, Input, InputAdornment, TextField, styled } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { SmartContractContext } from '../Context/SmartContract';
 import ReactApexChart from 'react-apexcharts';
@@ -6,6 +6,32 @@ import axios from 'axios';
 import Chart from './components/Chart';
 import ProviderCard from './components/ProviderCard';
 
+const CssTextField = styled(TextField)({
+  '& label.MuiInputLabel-root': { color: 'white' },
+  '& label.Mui-focused': {
+    color: 'white'
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: 'white'
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'white',
+      color: 'white'
+    },
+    '& input': {
+      color: 'white'
+    },
+    '&:hover fieldset': {
+      borderColor: 'white',
+      color: 'white'
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'white',
+      color: 'white'
+    }
+  }
+});
 export default function ProviderDashboard() {
   const { currentAccount, getProviderData } = React.useContext(SmartContractContext);
 
@@ -60,8 +86,11 @@ export default function ProviderDashboard() {
             },
             value: {
               color: '#fff',
-              fontSize: '30px',
-              show: true
+              fontSize: '20px',
+              show: true,
+              formatter(val) {
+                return `${val} KWh`;
+              }
             }
           }
         }
@@ -81,6 +110,7 @@ export default function ProviderDashboard() {
       labels: ['Usage']
     }
   });
+  const [margin, setMargin] = useState(15);
 
   const getNearbyData = async () => {
     const url =
@@ -134,7 +164,7 @@ export default function ProviderDashboard() {
         },
         {
           name: 'Charging Rate',
-          data: [...oldSeries[1].data, (val * 1.15).toFixed(2)]
+          data: [...oldSeries[1].data, (val * (1 + margin / 100.0)).toFixed(2)]
         }
       ];
       oldSeries = newSeries;
@@ -142,12 +172,11 @@ export default function ProviderDashboard() {
       oldCategory = newCategory;
       setRealtimeSeries(newSeries);
       setRealtimeCategory(newCategory);
-    }, 5000);
+    }, 7000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [margin]);
 
-  // console.log(chartData);
   return (
     <Container sx={{ paddingTop: 2 }} maxWidth="xxl">
       <Grid container sx={{ backgroundColor: '#121243', borderRadius: '10px', p: 2, color: 'white' }} spacing={2}>
@@ -180,6 +209,17 @@ export default function ProviderDashboard() {
                 }
               }}
             />
+            <Box display="flex" justifyContent="flex-end">
+              <Box width="200px">
+                <CssTextField
+                  size="small"
+                  label="Margin (%)"
+                  id="custom-css-outlined-input"
+                  value={margin}
+                  onChange={(e) => setMargin(e.target.value)}
+                />
+              </Box>
+            </Box>
           </Box>
         </Grid>
         <Grid item xs={12} md={4}>

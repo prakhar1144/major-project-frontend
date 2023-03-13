@@ -9,7 +9,10 @@ const Chart = ({ categories, series, height, type, xTitle, yTitle, xType, toolti
     plotOptions: { ...plotOption },
     fill: { ...fills },
     dataLabels: {
-      enabled: dataLabels
+      enabled: dataLabels,
+      formatter: (value, { dataPointIndex }) =>
+        // console.log(categories[dataPointIndex]);
+        `${value}`
     },
     stroke: {
       curve: 'smooth',

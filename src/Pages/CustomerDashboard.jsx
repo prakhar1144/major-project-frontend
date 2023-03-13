@@ -64,13 +64,13 @@ const AddProviderForm = ({
               <TextField
                 required
                 id="outlined-basic"
-                label="Rate"
+                label="Margin (%)"
                 variant="outlined"
-                value={addProviderData.rate}
+                value={addProviderData.margin}
                 size="small"
                 fullWidth
                 type="number"
-                name="rate"
+                name="margin"
                 onChange={handleChange}
               />
             </Box>
@@ -110,7 +110,7 @@ const AddProviderForm = ({
         ) : (
           <>
             <QRGenerator
-              value={`${addProviderData.rate},${addProviderData.name},${addProviderData.location},${currentAccount},${addProviderData.connectorType}`}
+              value={`${addProviderData.margin},${addProviderData.name},${addProviderData.location},${currentAccount},${addProviderData.connectorType}`}
             />
             <Button fullWidth variant="contained" color="success" onClick={() => handleDownload()}>
               Download QR
@@ -158,9 +158,9 @@ const ChargeForm = ({ open, handleClose, chargeData, handleChange, submit, total
             <TextField
               required
               id="outlined-basic"
-              label="Rate"
+              label="Margin"
               variant="outlined"
-              value={chargeData.rate}
+              value={chargeData.margin}
               size="small"
               fullWidth
               type="number"
@@ -222,12 +222,12 @@ export default function CustomerDashboard() {
 
   const initialProviderData = {
     name: '',
-    rate: '',
+    margin: '',
     location: '',
     connectorType: ''
   };
   const initialChargeData = {
-    rate: '',
+    margin: '',
     location: '',
     providerWalletAddress: '',
     connectorType: '',
@@ -261,13 +261,13 @@ export default function CustomerDashboard() {
     setChargeData({
       ...chargeData,
       requiredPercent: temp === '' ? 0 : temp,
-      totalPrice: ((parseFloat(chargeData.rate) * parseFloat(temp === '' ? 0 : temp)) / 3000.0).toFixed(10)
+      totalPrice: ((parseFloat(chargeData.margin) * parseFloat(temp === '' ? 0 : temp)) / 3000.0).toFixed(10)
     });
   };
   const submitAddProvider = (e) => {
     e.preventDefault();
     // console.log(addProviderData);
-    addProvider(addProviderData.name, addProviderData.rate, addProviderData.location, addProviderData.connectorType);
+    addProvider(addProviderData.name, addProviderData.margin, addProviderData.location, addProviderData.connectorType);
   };
   const submitChargeData = (e) => {
     e.preventDefault();
@@ -282,7 +282,7 @@ export default function CustomerDashboard() {
       const providerInfo = data.text.split(',');
       setChargeData({
         ...chargeData,
-        rate: providerInfo[0],
+        margin: providerInfo[0],
         name: providerInfo[1],
         location: `${providerInfo[2]},${providerInfo[3]}`,
         providerWalletAddress: providerInfo[4],
