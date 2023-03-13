@@ -1,6 +1,7 @@
 import { createContext, useMemo, useState } from 'react';
 import { ethers, BigNumber } from 'ethers';
 import { ContractABI, ContractAddress } from '../Utils/Constant';
+import appendSpreadsheet, { updateSpreadsheet } from '../Utils/spreadsheet';
 import { useNavigate } from 'react-router-dom';
 
 export const SmartContractContext = createContext();
@@ -106,7 +107,7 @@ const SmartContractProvider = ({ children }) => {
   };
 
   // use metamask provider for connect wallet and register new provider
-  const addProvider = async (_rate, _location, _availableChargingPorts) => {
+  const addProvider = async (_name, _rate, _location, _availableChargingPorts) => {
     // console.log(ContractABI);
     try {
       if (!currentAccount) {
@@ -119,7 +120,8 @@ const SmartContractProvider = ({ children }) => {
         // providerListener(contract);
         // await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
         // setIsProviderConfirmed(true);
-        console.log('okay');
+        // appendSpreadsheet(_name, _rate, _location, _availableChargingPorts);
+        updateSpreadsheet(_name, 10, 20);
       }
     } catch (error) {
       console.log(error);

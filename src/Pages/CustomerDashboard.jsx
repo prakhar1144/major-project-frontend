@@ -267,7 +267,7 @@ export default function CustomerDashboard() {
   const submitAddProvider = (e) => {
     e.preventDefault();
     // console.log(addProviderData);
-    addProvider(addProviderData.rate, addProviderData.location, addProviderData.connectorType);
+    addProvider(addProviderData.name, addProviderData.rate, addProviderData.location, addProviderData.connectorType);
   };
   const submitChargeData = (e) => {
     e.preventDefault();
