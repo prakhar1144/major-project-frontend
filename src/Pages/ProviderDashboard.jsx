@@ -1,10 +1,24 @@
-import { Container, Box, Grid, Typography, Paper, FormControl, InputLabel, Input, InputAdornment, TextField, styled } from '@mui/material';
+import {
+  Container,
+  Box,
+  Grid,
+  Typography,
+  Paper,
+  FormControl,
+  InputLabel,
+  Input,
+  InputAdornment,
+  TextField,
+  styled,
+  Button
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { SmartContractContext } from '../Context/SmartContract';
 import ReactApexChart from 'react-apexcharts';
 import axios from 'axios';
 import Chart from './components/Chart';
 import ProviderCard from './components/ProviderCard';
+import { updateSpreadsheet } from 'Utils/spreadsheet';
 
 const CssTextField = styled(TextField)({
   '& label.MuiInputLabel-root': { color: 'white' },
@@ -111,6 +125,7 @@ export default function ProviderDashboard() {
     }
   });
   const [margin, setMargin] = useState(15);
+  const [newMargin, setNewMargin] = useState(15);
 
   const getNearbyData = async () => {
     const url =
@@ -155,28 +170,40 @@ export default function ProviderDashboard() {
   let oldSeries = realtimeSeries;
   let oldCategory = realtimeCategory;
   useEffect(() => {
-    const interval = setInterval(() => {
-      const val = (Math.random() * 4 + 8).toFixed(2);
-      const newSeries = [
-        {
-          name: 'Disco Rate',
-          data: [...oldSeries[0].data, val]
-        },
-        {
-          name: 'Charging Rate',
-          data: [...oldSeries[1].data, (val * (1 + margin / 100.0)).toFixed(2)]
-        }
-      ];
-      oldSeries = newSeries;
-      const newCategory = [...oldCategory, Date.now()];
-      oldCategory = newCategory;
-      setRealtimeSeries(newSeries);
-      setRealtimeCategory(newCategory);
-    }, 7000);
+    const interval = setInterval(
+      () => {
+        const val = (Math.random() * 4 + 8).toFixed(2);
+        const newSeries = [
+          {
+            name: 'Disco Rate',
+            data: [...oldSeries[0].data, val]
+          },
+          {
+            name: 'Charging Rate',
+            data: [...oldSeries[1].data, (val * (1 + margin / 100.0)).toFixed(2)]
+          }
+        ];
+        oldSeries = newSeries;
+        const newCategory = [...oldCategory, Date.now()];
+        oldCategory = newCategory;
+        setRealtimeSeries(newSeries);
+        setRealtimeCategory(newCategory);
+        updateSpreadsheet('NIT Hamirpur Charging Station', margin, (val * (1 + margin / 100.0)).toFixed(2));
+      },
+      process.env.NODE_ENV === 'production'
+        ? process.env.REACT_APP_UPDATE_INTERVAL_MARGIN_PRO
+        : process.env.REACT_APP_UPDATE_INTERVAL_MARGIN_DEV
+    );
 
     return () => clearInterval(interval);
-  }, [margin]);
+  }, [newMargin]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setNewMargin(margin);
+    // console.log(providerInfo);
+    updateSpreadsheet('NIT Hamirpur Charging Station', margin, realtimeSeries[1].data[realtimeSeries[1].data.length - 1]);
+  };
   return (
     <Container sx={{ paddingTop: 2 }} maxWidth="xxl">
       <Grid container sx={{ backgroundColor: '#121243', borderRadius: '10px', p: 2, color: 'white' }} spacing={2}>
@@ -209,7 +236,7 @@ export default function ProviderDashboard() {
                 }
               }}
             />
-            <Box display="flex" justifyContent="flex-end">
+            <Box display="flex" justifyContent="flex-end" component="form" onSubmit={handleSubmit}>
               <Box width="200px">
                 <CssTextField
                   size="small"
@@ -219,6 +246,9 @@ export default function ProviderDashboard() {
                   onChange={(e) => setMargin(e.target.value)}
                 />
               </Box>
+              <Button type="submit" variant="text" color="warning">
+                Submit
+              </Button>
             </Box>
           </Box>
         </Grid>

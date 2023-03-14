@@ -120,7 +120,8 @@ const SmartContractProvider = ({ children }) => {
         providerListener(contract);
         await contract.addProvider(currentAccount, _rate, _location, _availableChargingPorts);
         setIsProviderConfirmed(true);
-        console.log('okay');
+        appendSpreadsheet(_name, _rate, _location, _availableChargingPorts);
+        // updateSpreadsheet(_name, 10, 20);
       }
     } catch (error) {
       console.log(error);
